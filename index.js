@@ -81,19 +81,11 @@ const guiState = {
   net: null,
 };
 
-function setupGui(cameras, net) {
-  guiState.net = net;
-
-  if (cameras.length > 0) {
-    guiState.camera = cameras[0].deviceId;
-  }
-}
-
 function detectPoseInRealTime(video, net) {
   const canvas = document.getElementById("output");
   const ctx = canvas.getContext("2d");
   // since images are being fed from a webcam
-  const flipHorizontal = true;
+  const flipHorizontal = false;
 
   canvas.width = videoWidth;
   canvas.height = videoHeight;
@@ -175,12 +167,11 @@ async function bindPage() {
     throw e;
   }
 
-  setupGui([], net);
+  guiState.net = net;
   detectPoseInRealTime(video, net);
 }
 
 const color = "aqua";
-const boundingBoxColor = "red";
 
 function drawPoint(ctx, y, x, r, color) {
   ctx.beginPath();

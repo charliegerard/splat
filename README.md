@@ -1,7 +1,8 @@
 # TODO:
 
 - [x] Generate cubes when others have been removed
-- [ ] Add PoseNet
+- [x] Add PoseNet
+- [x] Track hands
 - [ ] Raycasting
 - [ ] Sounds
 - [ ] Mobile screen
