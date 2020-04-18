@@ -9,3 +9,4 @@
 - [ ] Mobile screen
 - [ ] Add 3D models
 - [ ] Add gravity
+- [ ] Home screen
