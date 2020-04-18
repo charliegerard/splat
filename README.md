@@ -4,6 +4,7 @@
 - [x] Add PoseNet
 - [x] Track hands
 - [ ] Raycasting
+- [ ] Hands trails
 - [ ] Sounds
 - [ ] Mobile screen
 - [ ] Add 3D models

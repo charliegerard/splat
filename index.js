@@ -3,6 +3,7 @@ let scene;
 let cube;
 let direction = "up";
 let speed;
+let sound;
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
 
@@ -21,8 +22,11 @@ const generateFruits = () => {
     cube = new THREE.Mesh(geometry, material);
     cube.position.x = generateRandomXPosition(-10, 10);
     cube.position.y = generateRandomXPosition(-10, -5);
-    speed = generateRandomSpeed(0.05, 0.1);
+    // speed = generateRandomSpeed(0.05, 0.1);
+    speed = 0.05;
     cube.speed = speed;
+    cube.soundPlayed = false;
+
     cubes.push(cube);
     scene.add(cube);
   }
@@ -151,7 +155,6 @@ function detectPoseInRealTime(video, net) {
 }
 
 async function bindPage() {
-  //   const net = await posenet.load(0.75);
   const net = await posenet.load({
     architecture: "MobileNetV1",
     outputStride: 16,
@@ -230,6 +233,11 @@ const init = () => {
         cube.position.y += cube.speed;
       }
 
+      if (cube.position.y < 0 && !cube.soundPlayed && direction === "up") {
+        sound.play();
+        cube.soundPlayed = true;
+      }
+
       if (cube.position.y > 4) {
         direction = "down";
       }
@@ -255,4 +263,9 @@ const init = () => {
   animate();
 };
 
-init();
+window.onclick = () => {
+  sound = new Howl({
+    src: ["fruit.m4a"],
+  });
+  init();
+};
