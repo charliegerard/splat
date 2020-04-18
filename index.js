@@ -1,7 +1,7 @@
 const cubes = [];
 let scene;
 let cube;
-let direction = "up";
+// let direction = "up";
 let speed;
 let sound;
 const videoWidth = window.innerWidth;
@@ -26,6 +26,7 @@ const generateFruits = () => {
     speed = 0.05;
     cube.speed = speed;
     cube.soundPlayed = false;
+    cube.direction = "up";
 
     cubes.push(cube);
     scene.add(cube);
@@ -229,20 +230,20 @@ const init = () => {
       cube.rotation.x += 0.01;
       cube.rotation.y += 0.01;
 
-      if (direction === "up") {
+      if (cube.direction === "up") {
         cube.position.y += cube.speed;
       }
 
-      if (cube.position.y < 0 && !cube.soundPlayed && direction === "up") {
+      if (cube.position.y < 0 && !cube.soundPlayed && cube.direction === "up") {
         sound.play();
         cube.soundPlayed = true;
       }
 
       if (cube.position.y > 4) {
-        direction = "down";
+        cube.direction = "down";
       }
 
-      if (direction === "down") {
+      if (cube.direction === "down") {
         cube.position.y -= cube.speed;
       }
 
@@ -253,7 +254,7 @@ const init = () => {
     });
 
     if (cubes.length === 0) {
-      direction = "up";
+      cube.direction = "up";
       generateFruits();
     }
 
