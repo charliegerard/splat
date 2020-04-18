@@ -27,7 +27,6 @@ const generateFruits = () => {
     cube.speed = speed;
     cube.soundPlayed = false;
     cube.direction = "up";
-
     cubes.push(cube);
     scene.add(cube);
   }
@@ -234,7 +233,7 @@ const init = () => {
         cube.position.y += cube.speed;
       }
 
-      if (cube.position.y < 0 && !cube.soundPlayed && cube.direction === "up") {
+      if (cube.position.y > 0 && !cube.soundPlayed && cube.direction === "up") {
         sound.play();
         cube.soundPlayed = true;
       }

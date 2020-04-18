@@ -5,7 +5,7 @@
 - [x] Track hands
 - [ ] Raycasting
 - [ ] Hands trails
-- [ ] Sounds
+- [x] Sounds
 - [ ] Mobile screen
 - [ ] Add 3D models
 - [ ] Add gravity
