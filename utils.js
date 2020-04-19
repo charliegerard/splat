@@ -36,9 +36,10 @@ export const draw3DHand = () => {
   return mesh;
 };
 
-export const moveHands = (hands, camera, cubes) => {
+export const moveHands = (hands, camera, fruits, scene, e) => {
   hands.map((hand) => {
     const handVector = new THREE.Vector3();
+
     // handVector.x = (hand.coordinates.x / window.innerWidth) * 2 - 1;
     handVector.x = -(hand.coordinates.x / window.innerWidth) * 2 + 1;
     handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
@@ -57,41 +58,14 @@ export const moveHands = (hands, camera, cubes) => {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(handVector, camera);
 
-    const entities = hand.mesh;
-    const entitiesObjects = [];
+    let intersects = raycaster.intersectObjects(fruits);
 
-    // console.log(entities);
-
-    let intersects = raycaster.intersectObjects([entities], true);
     if (intersects.length) {
-      // const beat =
-      //   intersects[0].object.el.attributes[0].ownerElement.parentEl.components
-      //     .beat;
-
-      console.log("touched a cube!!!");
+      console.log(intersects[0].object);
+      if (intersects[0].object.geometry.name === "fruit") {
+        const fruit = intersects[0].object;
+        console.log("touched a cube!!!", fruit);
+      }
     }
-
-    // if (Array.from(entities).length) {
-    //   for (var i = 0; i < Array.from(entities).length; i++) {
-    //     const beatMesh = entities[i];
-    //     entitiesObjects.push(beatMesh);
-    //   }
-
-    //   let intersects = raycaster.intersectObjects(entitiesObjects, true);
-    //   if (intersects.length) {
-    //     // const beat =
-    //     //   intersects[0].object.el.attributes[0].ownerElement.parentEl.components
-    //     //     .beat;
-    //     // const beatColor = beat.attrValue.color;
-    //     // const beatType = beat.attrValue.type;
-
-    //     // if (beatColor === "red") {
-    //     //   if (beatType === "arrow" || beatType === "dot") {
-    //     //     beat.destroyBeat();
-    //     //   }
-    //     // }
-    //     console.log("touched a cube!!!");
-    //   }
-    // }
   });
 };

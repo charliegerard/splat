@@ -5,16 +5,22 @@ import {
   draw3DHand,
   moveHands,
 } from "./utils.js";
-const cubes = [];
+const fruits = [];
 const hands = [];
 let scene;
-let cube;
+let fruit;
 let speed;
 let sound;
 let camera;
 let handMesh;
+let renderer;
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
+
+const fruitsModels = [
+  { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
+  { model: "apple/Apple", material: "apple/Apple", name: "apple" },
+];
 
 const guiState = {
   algorithm: "single-pose",
@@ -36,18 +42,71 @@ const guiState = {
 
 const generateFruits = () => {
   for (var i = 0; i < 4; i++) {
-    var geometry = new THREE.BoxGeometry();
-    var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    cube = new THREE.Mesh(geometry, material);
-    cube.position.x = generateRandomXPosition(-10, 10);
-    cube.position.y = generateRandomXPosition(-10, -5);
-    speed = 0.05;
-    cube.speed = speed;
-    cube.soundPlayed = false;
-    cube.direction = "up";
-    cubes.push(cube);
-    scene.add(cube);
+    // var geometry = new THREE.BoxGeometry();
+    // var material = new THREE.MeshBasicMaterial({
+    //   color: 0x00ff00,
+    // });
+    // cube = new THREE.Mesh(geometry, material);
+
+    const randomFruit = fruitsModels[generateRandomXPosition(0, 1)];
+
+    var mtlLoader = new THREE.MTLLoader();
+    mtlLoader.setPath("assets/");
+    mtlLoader.load(`${randomFruit.material}.mtl`, function (materials) {
+      materials.preload();
+
+      var objLoader = new THREE.OBJLoader();
+      objLoader.setMaterials(materials);
+      objLoader.setPath("assets/");
+      objLoader.load(`${randomFruit.model}.obj`, function (object) {
+        fruit = object;
+
+        fruit.position.x = generateRandomXPosition(-7, 7);
+        fruit.position.y = generateRandomXPosition(-10, -5);
+
+        fruit.rotation.set(-7.5, 2.5, -5);
+
+        if (randomFruit.name === "apple") {
+          fruit.scale.set(0.005, 0.005, 0.005);
+        } else {
+          fruit.scale.set(0.015, 0.015, 0.015);
+        }
+
+        speed = 0.05;
+        fruit.speed = speed;
+        fruit.name = "fruit";
+        fruit.soundPlayed = false;
+        fruit.direction = "up";
+        fruits.push(fruit);
+
+        scene.add(fruit);
+        renderer.render(scene, camera);
+      });
+    });
+
+    // cube.position.x = generateRandomXPosition(-10, 10);
+    // cube.position.y = generateRandomXPosition(-10, -5);
+    // speed = 0.05;
+    // cube.speed = speed;
+    // geometry.name = "fruit";
+    // cube.soundPlayed = false;
+    // cube.direction = "up";
+    // cubes.push(cube);
+    // scene.add(cube);
   }
+};
+
+const setupLights = () => {
+  let ambientLight = new THREE.AmbientLight(
+    new THREE.Color("rgb(255,255,255)")
+  );
+  ambientLight.position.set(10, 0, 50);
+  scene.add(ambientLight);
+
+  let spotLight = new THREE.SpotLight(0xffffff);
+  spotLight.position.set(10, 0, 50);
+  spotLight.castShadow = true;
+  scene.add(spotLight);
 };
 
 async function setupCamera() {
@@ -169,7 +228,7 @@ function detectPoseInRealTime(video, net) {
               (hands[rightHandIndex].coordinates = rightWrist.position);
           }
 
-          moveHands(hands, camera, cubes);
+          moveHands(hands, camera, fruits, scene);
         }
       }
     });
@@ -213,9 +272,11 @@ const init = () => {
     1000
   );
 
-  var renderer = new THREE.WebGLRenderer({ alpha: true });
+  renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
+
+  setupLights();
 
   generateFruits();
 
@@ -224,36 +285,42 @@ const init = () => {
   var animate = function () {
     requestAnimationFrame(animate);
 
-    cubes.map((cube, index) => {
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+    if (fruits) {
+      fruits.map((fruit, index) => {
+        // fruit.rotation.x += 0.01;
+        // fruit.rotation.y += 0.01;
 
-      if (cube.direction === "up") {
-        cube.position.y += cube.speed;
+        if (fruit.direction === "up") {
+          fruit.position.y += fruit.speed;
+        }
+
+        if (
+          fruit.position.y > 0 &&
+          !fruit.soundPlayed &&
+          fruit.direction === "up"
+        ) {
+          sound.play();
+          fruit.soundPlayed = true;
+        }
+
+        if (fruit.position.y > 4) {
+          fruit.direction = "down";
+        }
+
+        if (fruit.direction === "down") {
+          fruit.position.y -= fruit.speed;
+        }
+
+        if (fruit.position.y < -10) {
+          scene.remove(fruit);
+          fruits.splice(index, 1);
+        }
+      });
+
+      if (fruits.length === 0) {
+        fruit && (fruit.direction = "up");
+        fruit && generateFruits();
       }
-
-      if (cube.position.y > 0 && !cube.soundPlayed && cube.direction === "up") {
-        sound.play();
-        cube.soundPlayed = true;
-      }
-
-      if (cube.position.y > 4) {
-        cube.direction = "down";
-      }
-
-      if (cube.direction === "down") {
-        cube.position.y -= cube.speed;
-      }
-
-      if (cube.position.y < -10) {
-        scene.remove(cube);
-        cubes.splice(index, 1);
-      }
-    });
-
-    if (cubes.length === 0) {
-      cube.direction = "up";
-      generateFruits();
     }
 
     renderer.render(scene, camera);
