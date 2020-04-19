@@ -10,3 +10,5 @@
 - [x] Add 3D models
 - [ ] Add gravity
 - [ ] Home screen
+- [ ] Score
+- [ ] Fix loading for performance

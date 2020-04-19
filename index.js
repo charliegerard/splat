@@ -14,6 +14,7 @@ let sound;
 let camera;
 let handMesh;
 let renderer;
+let net;
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
 
@@ -228,7 +229,7 @@ function detectPoseInRealTime(video, net) {
               (hands[rightHandIndex].coordinates = rightWrist.position);
           }
 
-          moveHands(hands, camera, fruits, scene);
+          moveHands(hands, camera, fruits);
         }
       }
     });
@@ -239,12 +240,15 @@ function detectPoseInRealTime(video, net) {
 }
 
 async function bindPage() {
-  const net = await posenet.load({
+  net = await posenet.load({
     architecture: "MobileNetV1",
     outputStride: 16,
     inputResolution: 513,
     multiplier: 0.75,
   });
+
+  document.getElementsByTagName("button")[0].innerText = "Start";
+  document.getElementsByTagName("button")[0].disabled = false;
 
   let video;
 
@@ -255,7 +259,7 @@ async function bindPage() {
   }
 
   guiState.net = net;
-  detectPoseInRealTime(video, net);
+  // detectPoseInRealTime(video, net);
 }
 
 navigator.getUserMedia =
@@ -281,63 +285,63 @@ const init = () => {
   generateFruits();
 
   camera.position.z = 5;
+};
 
-  var animate = function () {
-    requestAnimationFrame(animate);
+const animate = () => {
+  requestAnimationFrame(animate);
+  detectPoseInRealTime(video, net);
 
-    if (fruits) {
-      fruits.map((fruit, index) => {
-        // fruit.rotation.x += 0.01;
-        // fruit.rotation.y += 0.01;
+  if (fruits) {
+    fruits.map((fruit, index) => {
+      // fruit.rotation.x += 0.01;
+      // fruit.rotation.y += 0.01;
 
-        if (fruit.direction === "up") {
-          fruit.position.y += fruit.speed;
-        }
-
-        if (
-          fruit.position.y > 0 &&
-          !fruit.soundPlayed &&
-          fruit.direction === "up"
-        ) {
-          sound.play();
-          fruit.soundPlayed = true;
-        }
-
-        if (fruit.position.y > 4) {
-          fruit.direction = "down";
-        }
-
-        if (fruit.direction === "down") {
-          fruit.position.y -= fruit.speed;
-        }
-
-        if (fruit.position.y < -10) {
-          scene.remove(fruit);
-          fruits.splice(index, 1);
-        }
-      });
-
-      if (fruits.length === 0) {
-        fruit && (fruit.direction = "up");
-        fruit && generateFruits();
+      if (fruit.direction === "up") {
+        fruit.position.y += fruit.speed;
       }
+
+      if (
+        fruit.position.y > 0 &&
+        !fruit.soundPlayed &&
+        fruit.direction === "up"
+      ) {
+        sound.play();
+        fruit.soundPlayed = true;
+      }
+
+      if (fruit.position.y > 4) {
+        fruit.direction = "down";
+      }
+
+      if (fruit.direction === "down") {
+        fruit.position.y -= fruit.speed;
+      }
+
+      if (fruit.position.y < -10) {
+        scene.remove(fruit);
+        fruits.splice(index, 1);
+      }
+    });
+
+    if (fruits.length === 0) {
+      fruit && (fruit.direction = "up");
+      fruit && generateFruits();
     }
+  }
 
-    renderer.render(scene, camera);
-  };
-
-  animate();
+  renderer.render(scene, camera);
 };
 
 window.onload = () => {
-  // init();
-  // bindPage();
-};
-
-window.onclick = () => {
   sound = new Howl({
     src: ["fruit.m4a"],
   });
-  init();
   bindPage();
+  init();
+};
+
+document.getElementsByTagName("button")[0].onclick = () => {
+  if (net) {
+    animate();
+  }
 };

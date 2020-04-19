@@ -1,5 +1,4 @@
 const color = "aqua";
-let previousLeftHandPosition = { x: 0, y: 0, z: -0.2 };
 
 export const generateRandomXPosition = (min, max) => {
   return Math.round(Math.random() * (max - min)) + min;
@@ -30,13 +29,13 @@ const drawPoint = (ctx, y, x, r, color) => {
 };
 
 export const draw3DHand = () => {
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
   const material = new THREE.MeshBasicMaterial();
   const mesh = new THREE.Mesh(geometry, material);
   return mesh;
 };
 
-export const moveHands = (hands, camera, fruits, scene, e) => {
+export const moveHands = (hands, camera, fruits, e) => {
   hands.map((hand) => {
     const handVector = new THREE.Vector3();
 

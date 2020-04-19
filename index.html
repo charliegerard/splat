@@ -2,7 +2,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Covid Ninja</title>
+    <title>Fruit Ninja</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
@@ -12,12 +12,15 @@
   <body>
     <video id="video"></video>
     <main>
+      <section class="intro">
+        <h1>FRUIT NINJA</h1>
+        <p>Play Fruit Ninja with hand movements in the browser!</p>
+        <button disabled>Loading...</button>
+      </section>
       <canvas id="output"></canvas>
     </main>
-    <!-- <script src="OBJLoader.js" type="module"></script> -->
     <script src="MTLLoader.js"></script>
     <script src="OBJLoader.js"></script>
-
     <script src="utils.js" type="module"></script>
     <script src="index.js" type="module"></script>
   </body>
