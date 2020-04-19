@@ -40,7 +40,7 @@ export const moveHands = (hands, camera, cubes) => {
   hands.map((hand) => {
     const handVector = new THREE.Vector3();
     // handVector.x = (hand.coordinates.x / window.innerWidth) * 2 - 1;
-    handVector.x = (hand.coordinates.x / window.innerWidth) * 2 - 1;
+    handVector.x = -(hand.coordinates.x / window.innerWidth) * 2 + 1;
     handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
     handVector.z = 0;
 
@@ -57,30 +57,41 @@ export const moveHands = (hands, camera, cubes) => {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(handVector, camera);
 
-    const entities = cubes;
+    const entities = hand.mesh;
     const entitiesObjects = [];
 
-    if (Array.from(entities).length) {
-      for (var i = 0; i < Array.from(entities).length; i++) {
-        const beatMesh = entities[i];
-        entitiesObjects.push(beatMesh);
-      }
+    // console.log(entities);
 
-      let intersects = raycaster.intersectObjects(entitiesObjects, true);
-      if (intersects.length) {
-        // const beat =
-        //   intersects[0].object.el.attributes[0].ownerElement.parentEl.components
-        //     .beat;
-        // const beatColor = beat.attrValue.color;
-        // const beatType = beat.attrValue.type;
+    let intersects = raycaster.intersectObjects([entities], true);
+    if (intersects.length) {
+      // const beat =
+      //   intersects[0].object.el.attributes[0].ownerElement.parentEl.components
+      //     .beat;
 
-        // if (beatColor === "red") {
-        //   if (beatType === "arrow" || beatType === "dot") {
-        //     beat.destroyBeat();
-        //   }
-        // }
-        console.log("touched a cube!!!");
-      }
+      console.log("touched a cube!!!");
     }
+
+    // if (Array.from(entities).length) {
+    //   for (var i = 0; i < Array.from(entities).length; i++) {
+    //     const beatMesh = entities[i];
+    //     entitiesObjects.push(beatMesh);
+    //   }
+
+    //   let intersects = raycaster.intersectObjects(entitiesObjects, true);
+    //   if (intersects.length) {
+    //     // const beat =
+    //     //   intersects[0].object.el.attributes[0].ownerElement.parentEl.components
+    //     //     .beat;
+    //     // const beatColor = beat.attrValue.color;
+    //     // const beatType = beat.attrValue.type;
+
+    //     // if (beatColor === "red") {
+    //     //   if (beatType === "arrow" || beatType === "dot") {
+    //     //     beat.destroyBeat();
+    //     //   }
+    //     // }
+    //     console.log("touched a cube!!!");
+    //   }
+    // }
   });
 };
