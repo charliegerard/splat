@@ -1,18 +1,37 @@
+import {
+  generateRandomSpeed,
+  generateRandomXPosition,
+  drawKeypoints,
+  draw3DHand,
+  moveHands,
+} from "./utils.js";
 const cubes = [];
+const hands = [];
 let scene;
 let cube;
-// let direction = "up";
 let speed;
 let sound;
+let camera;
+let handMesh;
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
 
-const generateRandomXPosition = (min, max) => {
-  return Math.round(Math.random() * (max - min)) + min;
-};
-
-const generateRandomSpeed = (min, max) => {
-  return Math.random() * (max - min) + min;
+const guiState = {
+  algorithm: "single-pose",
+  input: {
+    mobileNetArchitecture: "0.75",
+    outputStride: 16,
+    imageScaleFactor: 0.5,
+  },
+  singlePoseDetection: {
+    minPoseConfidence: 0.1,
+    minPartConfidence: 0.5,
+  },
+  output: {
+    showVideo: false,
+    showPoints: true,
+  },
+  net: null,
 };
 
 const generateFruits = () => {
@@ -22,7 +41,6 @@ const generateFruits = () => {
     cube = new THREE.Mesh(geometry, material);
     cube.position.x = generateRandomXPosition(-10, 10);
     cube.position.y = generateRandomXPosition(-10, -5);
-    // speed = generateRandomSpeed(0.05, 0.1);
     speed = 0.05;
     cube.speed = speed;
     cube.soundPlayed = false;
@@ -53,11 +71,9 @@ async function setupCamera() {
   });
   video.srcObject = stream;
 
-  return new Promise((resolve) => {
-    video.onloadedmetadata = () => {
-      resolve(video);
-    };
-  });
+  return new Promise(
+    (resolve) => (video.onloadedmetadata = () => resolve(video))
+  );
 }
 
 async function loadVideo() {
@@ -66,24 +82,6 @@ async function loadVideo() {
 
   return video;
 }
-
-const guiState = {
-  algorithm: "single-pose",
-  input: {
-    mobileNetArchitecture: "0.75",
-    outputStride: 16,
-    imageScaleFactor: 0.5,
-  },
-  singlePoseDetection: {
-    minPoseConfidence: 0.1,
-    minPartConfidence: 0.5,
-  },
-  output: {
-    showVideo: false,
-    showPoints: true,
-  },
-  net: null,
-};
 
 function detectPoseInRealTime(video, net) {
   const canvas = document.getElementById("output");
@@ -95,15 +93,15 @@ function detectPoseInRealTime(video, net) {
   canvas.height = videoHeight;
 
   async function poseDetectionFrame() {
-    if (guiState.changeToArchitecture) {
-      // Important to purge variables and free up GPU memory
-      guiState.net.dispose();
+    // if (guiState.changeToArchitecture) {
+    //   // Important to purge variables and free up GPU memory
+    //   guiState.net.dispose();
 
-      // Load the PoseNet model weights for either the 0.50, 0.75, 1.00, or 1.01
-      // version
-      //   guiState.net = await posenet.load(+guiState.changeToArchitecture);
-      guiState.changeToArchitecture = null;
-    }
+    //   // Load the PoseNet model weights for either the 0.50, 0.75, 1.00, or 1.01
+    //   // version
+    //   //   guiState.net = await posenet.load(+guiState.changeToArchitecture);
+    //   guiState.changeToArchitecture = null;
+    // }
 
     // Scale an image down to a certain factor. Too large of an image will slow
     // down the GPU
@@ -130,21 +128,56 @@ function detectPoseInRealTime(video, net) {
 
     ctx.clearRect(0, 0, videoWidth, videoHeight);
 
-    if (guiState.output.showVideo) {
-      ctx.save();
-      ctx.scale(-1, 1);
-      ctx.translate(-videoWidth, 0);
-      ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-      ctx.restore();
-    }
-
     poses.forEach(({ score, keypoints }) => {
       if (score >= minPoseConfidence) {
         if (guiState.output.showPoints) {
           const leftWrist = keypoints.find((k) => k.part === "leftWrist");
           const rightWrist = keypoints.find((k) => k.part === "rightWrist");
 
-          drawKeypoints([rightWrist, leftWrist], minPartConfidence, ctx);
+          // drawKeypoints([rightWrist, leftWrist], minPartConfidence, ctx);
+
+          if (leftWrist) {
+            const hasLeftHand = hands.find((hand) => hand.name === "leftHand");
+
+            if (!hasLeftHand) {
+              handMesh = draw3DHand();
+              hands.push({
+                mesh: handMesh,
+                coordinates: leftWrist.position,
+                name: "leftHand",
+              });
+              scene.add(handMesh);
+            }
+
+            const leftHandIndex = hands.findIndex(
+              (hand) => hand.name === "leftHand"
+            );
+
+            leftHandIndex &&
+              (hands[leftHandIndex].coordinates = leftWrist.position);
+          }
+
+          if (rightWrist) {
+            const hasRightHand = hands.find(
+              (hand) => hand.name === "rightHand"
+            );
+
+            if (!hasRightHand) {
+              handMesh = draw3DHand();
+              hands.push({
+                mesh: handMesh,
+                coordinates: rightWrist.position,
+                name: "rightHand",
+              });
+              scene.add(handMesh);
+            }
+            const rightHandIndex = hands.findIndex(
+              (hand) => hand.name === "rightHand"
+            );
+
+            rightHandIndex &&
+              (hands[rightHandIndex].coordinates = rightWrist.position);
+          }
         }
       }
     });
@@ -174,40 +207,14 @@ async function bindPage() {
   detectPoseInRealTime(video, net);
 }
 
-const color = "aqua";
-
-function drawPoint(ctx, y, x, r, color) {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, 2 * Math.PI);
-  ctx.fillStyle = color;
-  ctx.fill();
-}
-
-function drawKeypoints(keypoints, minConfidence, ctx, scale = 1) {
-  for (let i = 0; i < keypoints.length; i++) {
-    const keypoint = keypoints[i];
-
-    if (keypoint.score < minConfidence) {
-      continue;
-    }
-
-    const { y, x } = keypoint.position;
-    drawPoint(ctx, y * scale, x * scale, 30, color);
-  }
-}
-
 navigator.getUserMedia =
   navigator.getUserMedia ||
   navigator.webkitGetUserMedia ||
   navigator.mozGetUserMedia;
 
-window.onload = () => {
-  bindPage();
-};
-
 const init = () => {
   scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(
+  camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
@@ -257,10 +264,17 @@ const init = () => {
       generateFruits();
     }
 
+    moveHands(hands, camera);
+
     renderer.render(scene, camera);
   };
 
   animate();
+};
+
+window.onload = () => {
+  // init();
+  // bindPage();
 };
 
 window.onclick = () => {
@@ -268,4 +282,5 @@ window.onclick = () => {
     src: ["fruit.m4a"],
   });
   init();
+  bindPage();
 };
