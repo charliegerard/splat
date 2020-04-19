@@ -93,16 +93,6 @@ function detectPoseInRealTime(video, net) {
   canvas.height = videoHeight;
 
   async function poseDetectionFrame() {
-    // if (guiState.changeToArchitecture) {
-    //   // Important to purge variables and free up GPU memory
-    //   guiState.net.dispose();
-
-    //   // Load the PoseNet model weights for either the 0.50, 0.75, 1.00, or 1.01
-    //   // version
-    //   //   guiState.net = await posenet.load(+guiState.changeToArchitecture);
-    //   guiState.changeToArchitecture = null;
-    // }
-
     // Scale an image down to a certain factor. Too large of an image will slow
     // down the GPU
     const imageScaleFactor = guiState.input.imageScaleFactor;
@@ -153,7 +143,7 @@ function detectPoseInRealTime(video, net) {
               (hand) => hand.name === "leftHand"
             );
 
-            leftHandIndex &&
+            leftHandIndex !== -1 &&
               (hands[leftHandIndex].coordinates = leftWrist.position);
           }
 
@@ -175,9 +165,11 @@ function detectPoseInRealTime(video, net) {
               (hand) => hand.name === "rightHand"
             );
 
-            rightHandIndex &&
+            rightHandIndex !== -1 &&
               (hands[rightHandIndex].coordinates = rightWrist.position);
           }
+
+          moveHands(hands, camera, cubes);
         }
       }
     });
@@ -263,8 +255,6 @@ const init = () => {
       cube.direction = "up";
       generateFruits();
     }
-
-    moveHands(hands, camera);
 
     renderer.render(scene, camera);
   };
