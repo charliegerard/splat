@@ -29,7 +29,7 @@ const drawPoint = (ctx, y, x, r, color) => {
 };
 
 export const draw3DHand = () => {
-  const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
   const material = new THREE.MeshBasicMaterial();
   const mesh = new THREE.Mesh(geometry, material);
   return mesh;
@@ -60,6 +60,7 @@ export const moveHands = (hands, camera, fruits, e) => {
     let intersects = raycaster.intersectObjects(fruits);
 
     if (intersects.length) {
+      console.log("touched a fruit!!!");
       console.log(intersects[0].object);
       if (intersects[0].object.geometry.name === "fruit") {
         const fruit = intersects[0].object;

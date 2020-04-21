@@ -9,6 +9,7 @@
 - [ ] Mobile screen
 - [x] Add 3D models
 - [ ] Add gravity
-- [ ] Home screen
+- [x] Home screen
 - [ ] Score
 - [ ] Fix loading for performance
+- [ ] Resize browser windows
