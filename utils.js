@@ -43,7 +43,6 @@ export const moveHands = (hands, camera, fruits, e) => {
     handVector.x = -(hand.coordinates.x / window.innerWidth) * 2 + 1;
     handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
     handVector.z = 0;
-
     handVector.unproject(camera);
 
     const cameraPosition = camera.position;

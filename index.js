@@ -59,7 +59,6 @@ const generateFruits = () => {
 
     newFruit.position.x = generateRandomXPosition(-7, 7);
     newFruit.position.y = generateRandomXPosition(-10, -5);
-
     newFruit.rotation.set(-7.5, 2.5, -5);
 
     if (randomFruit.name === "apple") {
@@ -227,8 +226,8 @@ const animate = () => {
 
   if (fruitsObjects) {
     fruitsObjects.map((fruit, index) => {
-      // fruit.rotation.x += 0.01;
-      // fruit.rotation.y += 0.01;
+      fruit.rotation.x += 0.02;
+      fruit.rotation.y += 0.02;
 
       if (fruit.direction === "up") {
         fruit.position.y += fruit.speed;
