@@ -16,6 +16,7 @@ let fruitSliced;
 let camera;
 let handMesh;
 let renderer;
+let score = 0;
 let net;
 let canvas = document.getElementById("output");
 let ctx = canvas.getContext("2d");
@@ -283,6 +284,7 @@ const animate = () => {
     if (test.includes(true)) {
       console.log("touched fruit");
       fruitSliced.play();
+      document.querySelector(".score span").innerText = score++;
     }
   }
 

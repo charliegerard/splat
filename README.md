@@ -11,6 +11,7 @@
 - [ ] Add gravity
 - [ ] Fix raycasting
 - [x] Mobile screen
-- [ ] Score
+- [x] Score
 - [ ] Fix loading for performance
 - [x] Resize browser windows
+- [ ] Debounce collision
