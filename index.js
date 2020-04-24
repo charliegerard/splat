@@ -11,7 +11,8 @@ const hands = [];
 let scene;
 let fruit;
 let speed;
-let sound;
+let newFruitSound;
+let fruitSliced;
 let camera;
 let handMesh;
 let renderer;
@@ -62,7 +63,7 @@ const generateFruits = () => {
 
     newFruit.position.x = randomXPosition;
     newFruit.position.y = randomYPosition;
-    newFruit.position.z = 1000;
+    newFruit.position.z = 100;
 
     // newFruit.rotation.set(-7.5, 2.5, -5);
     // newFruit.scale.set(0.005, 0.005, 0.005);
@@ -168,13 +169,16 @@ const detectPoseInRealTime = (video, net) => {
 
     ctx.clearRect(0, 0, videoWidth, videoHeight);
 
+    // ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+    // ctx.fillRect(0, 0, videoWidth, videoWidth);
+
     poses.forEach(({ score, keypoints }) => {
       if (score >= minPoseConfidence) {
         if (guiState.output.showPoints) {
           const leftWrist = keypoints.find((k) => k.part === "leftWrist");
           const rightWrist = keypoints.find((k) => k.part === "rightWrist");
 
-          // drawKeypoints([rightWrist, leftWrist], minPartConfidence, ctx);
+          drawKeypoints([rightWrist, leftWrist], minPartConfidence, ctx);
 
           if (leftWrist) {
             const hasLeftHand = hands.find((hand) => hand.name === "leftHand");
@@ -246,7 +250,7 @@ const animate = () => {
         !fruit.soundPlayed &&
         fruit.direction === "up"
       ) {
-        sound.play();
+        newFruitSound.play();
         fruit.soundPlayed = true;
       }
       if (fruit.position.y > 500) {
@@ -266,39 +270,21 @@ const animate = () => {
       fruit && generateFruits();
     }
   }
+
   // window.onmousemove = (e) => {
-  //   const mouseVector = new THREE.Vector2();
-
-  //   mouseVector.x = (e.clientX / window.innerWidth) * 2 - 1;
-  //   // mouseVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  //   mouseVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-  //   const raycaster = new THREE.Raycaster();
-  //   raycaster.setFromCamera(mouseVector, camera);
-
-  //   // let intersects = raycaster.intersectObjects(fruits, true);
-  //   let intersects = raycaster.intersectObjects(fruitsObjects, true);
-
-  //   if (intersects.length > 0) {
-  //     if (
-  //       intersects[0].object.name === "banana" ||
-  //       intersects[0].object.name === "apple"
-  //     ) {
-  //       const fruit = intersects[0].object;
-  //       console.log("touched a fruit!!");
-  //     }
+  //   if (hands) {
+  //     moveHands(hands, camera, fruitsObjects, e);
   //   }
   // };
 
-  window.onmousemove = (e) => {
-    if (hands) {
-      moveHands(hands, camera, fruitsObjects, e);
-    }
-  };
+  if (hands.length) {
+    let test = moveHands(hands, camera, fruitsObjects);
 
-  // if (hands.length) {
-  //   moveHands(hands, camera, fruitsObjects);
-  // }
+    if (test.includes(true)) {
+      console.log("touched fruit");
+      fruitSliced.play();
+    }
+  }
 
   renderer.render(scene, camera);
 };
@@ -352,10 +338,6 @@ const loadFruitsModels = () => {
             fruits.push(fruitModel);
           }
         });
-
-        // fruitModel = object;
-        // fruitModel.name = fruit.name;
-        // fruits.push(fruitModel);
       });
     });
     return fruits;
@@ -381,7 +363,8 @@ const init3DScene = async () => {
 };
 
 window.onload = async () => {
-  sound = new Howl({ src: ["fruit.m4a"] });
+  newFruitSound = new Howl({ src: ["fruit.m4a"] });
+  fruitSliced = new Howl({ src: ["splash.m4a"] });
   await loadPoseNet();
   await init3DScene();
   loadFruitsModels();

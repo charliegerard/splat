@@ -30,7 +30,11 @@ const drawPoint = (ctx, y, x, r, color) => {
 
 export const draw3DHand = () => {
   const geometry = new THREE.BoxGeometry(50, 50, 50);
-  const material = new THREE.MeshBasicMaterial();
+  // const material = new THREE.MeshBasicMaterial({ transparent: true });
+  const material = new THREE.MeshPhongMaterial({
+    transparent: true,
+    opacity: 0,
+  });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.z = 0;
   return mesh;
@@ -70,7 +74,7 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
   //   }
   // });
 
-  hands.map((hand) => {
+  return hands.map((hand) => {
     const handVector = new THREE.Vector3();
     // the x coordinates seem to be flipped so i'm subtracting them from window innerWidth
     handVector.x =
@@ -79,30 +83,30 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
     handVector.z = 0;
 
     // Test mouse
-    var vec = new THREE.Vector3(); // create once and reuse
-    var pos = new THREE.Vector3(); // create once and reuse
+    // var vec = new THREE.Vector3(); // create once and reuse
+    // var pos = new THREE.Vector3(); // create once and reuse
 
-    vec.set(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1,
-      0.5
-    );
+    // vec.set(
+    //   (event.clientX / window.innerWidth) * 2 - 1,
+    //   -(event.clientY / window.innerHeight) * 2 + 1,
+    //   0
+    // );
 
-    vec.unproject(camera);
-    vec.sub(camera.position).normalize();
-    var distance = -camera.position.z / vec.z;
-    let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
+    // vec.unproject(camera);
+    // vec.sub(camera.position).normalize();
+    // var distance = -camera.position.z / vec.z;
+    // let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
 
     // end test
 
-    // handVector.unproject(camera);
-    // const cameraPosition = camera.position;
-    // const dir = handVector.sub(cameraPosition).normalize();
-    // const distance = -cameraPosition.z / dir.z;
-    // const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
+    handVector.unproject(camera);
+    const cameraPosition = camera.position;
+    const dir = handVector.sub(cameraPosition).normalize();
+    const distance = -cameraPosition.z / dir.z;
+    const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
 
     hand.mesh.position.copy(newPos);
-    hand.mesh.position.z = -0.2;
+    hand.mesh.position.z = 0;
 
     let handGeometry = hand.mesh.geometry;
 
@@ -114,9 +118,7 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
       vertexIndex++
     ) {
       var localVertex = handGeometry.vertices[vertexIndex].clone();
-      // var globalVertex = localVertex.applyMatrix4(skateboard.matrix);
       var globalVertex = localVertex.applyMatrix4(hand.mesh.matrix);
-      // var directionVector = globalVertex.sub(skateboard.position);
       var directionVector = globalVertex.sub(hand.mesh.position);
 
       var ray = new THREE.Raycaster(
@@ -128,7 +130,8 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
 
       if (collisionResults.length > 0) {
         if (collisionResults[0].distance < 500) {
-          console.log("fruit!!!");
+          // console.log("fruit!!!");
+          return true;
         }
 
         // console.log(collisionResults[0].object.name);
@@ -143,6 +146,7 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
       //   console.log("collisionnnn");
       // }
     }
+    return false;
 
     // const raycaster = new THREE.Raycaster();
     // // raycaster.setFromCamera(handVector, camera);
