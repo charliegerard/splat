@@ -10,7 +10,7 @@
 - [ ] Hands trails
 - [ ] Add gravity
 - [ ] Fix raycasting
-- [ ] Mobile screen
+- [x] Mobile screen
 - [ ] Score
 - [ ] Fix loading for performance
-- [ ] Resize browser windows
+- [x] Resize browser windows

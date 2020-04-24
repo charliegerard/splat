@@ -140,8 +140,8 @@ const detectPoseInRealTime = (video, net) => {
   // since images are being fed from a webcam
   const flipHorizontal = false;
 
-  canvas.width = videoWidth;
-  canvas.height = videoHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
   async function poseDetectionFrame() {
     // Scale an image down to a certain factor. Too large of an image will slow
@@ -167,7 +167,7 @@ const detectPoseInRealTime = (video, net) => {
         break;
     }
 
-    ctx.clearRect(0, 0, videoWidth, videoHeight);
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     // ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
     // ctx.fillRect(0, 0, videoWidth, videoWidth);
@@ -360,6 +360,27 @@ const init3DScene = async () => {
   document.getElementsByClassName("game")[0].appendChild(renderer.domElement);
 
   setupLights();
+
+  var tanFOV = Math.tan(((Math.PI / 180) * camera.fov) / 2);
+  var windowHeight = window.innerHeight;
+
+  window.addEventListener("resize", onWindowResize, false);
+
+  function onWindowResize(event) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
+
+    // adjust the FOV
+    camera.fov =
+      (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
+
+    camera.updateProjectionMatrix();
+    camera.lookAt(scene.position);
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.render(scene, camera);
+  }
 };
 
 window.onload = async () => {
