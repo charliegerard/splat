@@ -29,42 +29,130 @@ const drawPoint = (ctx, y, x, r, color) => {
 };
 
 export const draw3DHand = () => {
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const geometry = new THREE.BoxGeometry(50, 50, 50);
   const material = new THREE.MeshBasicMaterial();
   const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.z = 0;
   return mesh;
 };
 
-export const moveHands = (hands, camera, fruits, e) => {
+export const moveHands = (hands, camera, fruitsObjects, event) => {
+  // hands.map((hand) => {
+  //   const handVector = new THREE.Vector3();
+  //   // the x coordinates seem to be flipped so i'm subtracting them from window innerWidth
+  //   handVector.x =
+  //     ((window.innerWidth - hand.coordinates.x) / window.innerWidth) * 2 - 1;
+  //   handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
+
+  //   handVector.unproject(camera);
+  //   const cameraPosition = camera.position;
+  //   const dir = handVector.sub(cameraPosition).normalize();
+  //   const distance = -cameraPosition.z / dir.z;
+  //   const pos = cameraPosition.clone().add(dir.multiplyScalar(distance));
+
+  //   hand.mesh.position.copy(pos);
+  //   hand.mesh.position.z = 0;
+
+  //   const raycaster = new THREE.Raycaster();
+  //   raycaster.setFromCamera(handVector, camera);
+
+  //   let intersects = raycaster.intersectObjects(fruitsObjects, true);
+
+  //   if (intersects.length > 0) {
+  //     console.log("touched a fruit!!!");
+  //     if (
+  //       intersects[0].object.name === "apple" ||
+  //       intersects[0].object.name === "banana"
+  //     ) {
+  //       const fruit = intersects[0].object;
+  //       console.log("touched a fruit!!!");
+  //     }
+  //   }
+  // });
+
   hands.map((hand) => {
     const handVector = new THREE.Vector3();
-
-    // handVector.x = (hand.coordinates.x / window.innerWidth) * 2 - 1;
-    handVector.x = -(hand.coordinates.x / window.innerWidth) * 2 + 1;
+    // the x coordinates seem to be flipped so i'm subtracting them from window innerWidth
+    handVector.x =
+      ((window.innerWidth - hand.coordinates.x) / window.innerWidth) * 2 - 1;
     handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
     handVector.z = 0;
-    handVector.unproject(camera);
 
+    // Test mouse
+    // var vec = new THREE.Vector3(); // create once and reuse
+    // var pos = new THREE.Vector3(); // create once and reuse
+
+    // vec.set(
+    //   (event.clientX / window.innerWidth) * 2 - 1,
+    //   -(event.clientY / window.innerHeight) * 2 + 1,
+    //   0.5
+    // );
+
+    // vec.unproject(camera);
+    // vec.sub(camera.position).normalize();
+    // var distance = -camera.position.z / vec.z;
+    // let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
+
+    // end test
+
+    handVector.unproject(camera);
     const cameraPosition = camera.position;
     const dir = handVector.sub(cameraPosition).normalize();
     const distance = -cameraPosition.z / dir.z;
-    const pos = cameraPosition.clone().add(dir.multiplyScalar(distance));
+    const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
 
-    hand.mesh.position.copy(pos);
+    hand.mesh.position.copy(newPos);
     hand.mesh.position.z = -0.2;
 
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(handVector, camera);
+    let handGeometry = hand.mesh.geometry;
+    var originPoint = hand.mesh.position.clone();
 
-    let intersects = raycaster.intersectObjects(fruits);
+    for (
+      var vertexIndex = 0;
+      vertexIndex < handGeometry.vertices.length;
+      vertexIndex++
+    ) {
+      var localVertex = handGeometry.vertices[vertexIndex].clone();
+      // var globalVertex = localVertex.applyMatrix4(skateboard.matrix);
+      var globalVertex = localVertex.applyMatrix4(hand.mesh.matrix);
+      // var directionVector = globalVertex.sub(skateboard.position);
+      var directionVector = globalVertex.sub(hand.mesh.position);
 
-    if (intersects.length) {
-      console.log("touched a fruit!!!");
-      console.log(intersects[0].object);
-      if (intersects[0].object.geometry.name === "fruit") {
-        const fruit = intersects[0].object;
-        console.log("touched a cube!!!", fruit);
+      var ray = new THREE.Raycaster(
+        originPoint,
+        directionVector.clone().normalize()
+      );
+      var collisionResults = ray.intersectObjects(fruitsObjects);
+
+      if (collisionResults.length > 0) {
+        console.log(collisionResults[0].object.name);
+        // console.log("collisions: ", collisionResults[0].distance);
+        // console.log("direction vector: ", directionVector.length());
       }
+
+      // if (
+      //   collisionResults.length > 0 &&
+      //   collisionResults[0].distance < directionVector.length()
+      // ) {
+      //   console.log("collisionnnn");
+      // }
     }
+
+    // const raycaster = new THREE.Raycaster();
+    // // raycaster.setFromCamera(handVector, camera);
+    // raycaster.setFromCamera(vec, camera);
+
+    // let intersects = raycaster.intersectObjects(fruitsObjects);
+
+    // if (intersects.length > 0) {
+    //   console.log("touched a fruit!!!");
+    //   if (
+    //     intersects[0].object.name === "apple" ||
+    //     intersects[0].object.name === "banana"
+    //   ) {
+    //     const fruit = intersects[0].object;
+    //     console.log("touched a fruit!!!");
+    //   }
+    // }
   });
 };

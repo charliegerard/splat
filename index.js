@@ -16,10 +16,10 @@ let camera;
 let handMesh;
 let renderer;
 let net;
-let canvas;
+let canvas = document.getElementById("output");
+let ctx = canvas.getContext("2d");
 let video;
 let fruitModel;
-let ctx;
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
 
@@ -54,20 +54,31 @@ const guiState = {
 const generateFruits = () => {
   for (var i = 0; i < 10; i++) {
     const randomFruit = fruits[generateRandomXPosition(0, 1)];
+    const randomXPosition = generateRandomXPosition(-1000, 1000);
+    const randomYPosition = generateRandomXPosition(-850, -800);
+    // const randomYPosition = 500;
 
     let newFruit = randomFruit.clone();
 
-    newFruit.position.x = generateRandomXPosition(-7, 7);
-    newFruit.position.y = generateRandomXPosition(-10, -5);
-    newFruit.rotation.set(-7.5, 2.5, -5);
+    newFruit.position.x = randomXPosition;
+    newFruit.position.y = randomYPosition;
+    newFruit.position.z = 1000;
+
+    // newFruit.rotation.set(-7.5, 2.5, -5);
+    // newFruit.scale.set(0.005, 0.005, 0.005);
+
+    // if (randomFruit.name === "apple") {
+    //   newFruit.scale.set(0.005, 0.005, 0.005);
+    // } else {
+    //   newFruit.scale.set(0.015, 0.015, 0.015);
+    // }
 
     if (randomFruit.name === "apple") {
-      newFruit.scale.set(0.005, 0.005, 0.005);
-    } else {
-      newFruit.scale.set(0.015, 0.015, 0.015);
+      newFruit.position.z = -300;
     }
 
-    speed = 0.05;
+    speed = 10;
+    // speed = 0.05;
     newFruit.speed = speed;
     newFruit.soundPlayed = false;
     newFruit.direction = "up";
@@ -125,8 +136,6 @@ const loadVideo = async () => {
 };
 
 const detectPoseInRealTime = (video, net) => {
-  canvas = document.getElementById("output");
-  ctx = canvas.getContext("2d");
   // since images are being fed from a webcam
   const flipHorizontal = false;
 
@@ -210,7 +219,7 @@ const detectPoseInRealTime = (video, net) => {
               (hands[rightHandIndex].coordinates = rightWrist.position);
           }
 
-          moveHands(hands, camera, fruitsObjects);
+          // moveHands(hands, camera, fruitsObjects);
         }
       }
     });
@@ -226,46 +235,72 @@ const animate = () => {
 
   if (fruitsObjects) {
     fruitsObjects.map((fruit, index) => {
-      fruit.rotation.x += 0.02;
-      fruit.rotation.y += 0.02;
+      // fruit.rotation.x += 0.02;
+      // fruit.rotation.y += 0.02;
 
       if (fruit.direction === "up") {
         fruit.position.y += fruit.speed;
       }
-
       if (
-        fruit.position.y > 0 &&
+        fruit.position.y > -700 &&
         !fruit.soundPlayed &&
         fruit.direction === "up"
       ) {
         sound.play();
         fruit.soundPlayed = true;
       }
-
-      if (fruit.position.y > 4) {
+      if (fruit.position.y > 500) {
         fruit.direction = "down";
       }
-
       if (fruit.direction === "down") {
         fruit.position.y -= fruit.speed;
       }
 
-      if (fruit.position.y < -10) {
+      if (fruit.position.y < -900) {
         scene.remove(fruit);
         fruitsObjects.splice(index, 1);
       }
     });
-
     if (fruitsObjects.length === 0) {
       fruit && (fruit.direction = "up");
       fruit && generateFruits();
     }
   }
-  renderer.render(scene, camera);
-};
+  // window.onmousemove = (e) => {
+  //   const mouseVector = new THREE.Vector2();
 
-const startDetectingHands = () => {
-  // detectPoseInRealTime(video, net);
+  //   mouseVector.x = (e.clientX / window.innerWidth) * 2 - 1;
+  //   // mouseVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  //   mouseVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  //   const raycaster = new THREE.Raycaster();
+  //   raycaster.setFromCamera(mouseVector, camera);
+
+  //   // let intersects = raycaster.intersectObjects(fruits, true);
+  //   let intersects = raycaster.intersectObjects(fruitsObjects, true);
+
+  //   if (intersects.length > 0) {
+  //     if (
+  //       intersects[0].object.name === "banana" ||
+  //       intersects[0].object.name === "apple"
+  //     ) {
+  //       const fruit = intersects[0].object;
+  //       console.log("touched a fruit!!");
+  //     }
+  //   }
+  // };
+
+  window.onmousemove = (e) => {
+    if (hands) {
+      moveHands(hands, camera, fruitsObjects, e);
+    }
+  };
+
+  if (hands.length) {
+    moveHands(hands, camera, fruitsObjects);
+  }
+
+  renderer.render(scene, camera);
 };
 
 const updateStartButton = () => {
@@ -301,9 +336,26 @@ const loadFruitsModels = () => {
       objLoader.setMaterials(materials);
       objLoader.setPath("assets/");
       objLoader.load(`${fruit.model}.obj`, function (object) {
-        fruitModel = object;
-        fruitModel.name = fruit.name;
-        fruits.push(fruitModel);
+        object.traverse(function (child) {
+          if (child instanceof THREE.Mesh) {
+            var mesh = new THREE.Mesh(child.geometry, child.material);
+
+            fruitModel = mesh;
+            fruitModel.name = fruit.name;
+
+            // if (fruitModel.name === "apple") {
+            //   fruitModel.scale.set(0.005, 0.005, 0.005);
+            // } else {
+            //   fruitModel.scale.set(0.015, 0.015, 0.015);
+            // }
+
+            fruits.push(fruitModel);
+          }
+        });
+
+        // fruitModel = object;
+        // fruitModel.name = fruit.name;
+        // fruits.push(fruitModel);
       });
     });
     return fruits;
@@ -318,7 +370,8 @@ const init3DScene = async () => {
     0.1,
     1000
   );
-  camera.position.z = 5;
+  // camera.position.z = 5;
+  camera.position.z = 500;
 
   renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -343,5 +396,6 @@ document.getElementsByTagName("button")[0].onclick = () => {
 
     // startDetectingHands();
     animate();
+    detectPoseInRealTime(video, net);
   }
 };
