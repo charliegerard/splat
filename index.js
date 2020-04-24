@@ -296,9 +296,9 @@ const animate = () => {
     }
   };
 
-  if (hands.length) {
-    moveHands(hands, camera, fruitsObjects);
-  }
+  // if (hands.length) {
+  //   moveHands(hands, camera, fruitsObjects);
+  // }
 
   renderer.render(scene, camera);
 };
@@ -393,8 +393,6 @@ document.getElementsByTagName("button")[0].onclick = () => {
   if (net) {
     document.getElementsByClassName("intro")[0].style.display = "none";
     generateFruits();
-
-    // startDetectingHands();
     animate();
     detectPoseInRealTime(video, net);
   }
