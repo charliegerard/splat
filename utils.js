@@ -83,27 +83,27 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
     handVector.z = 0;
 
     // Test mouse
-    // var vec = new THREE.Vector3(); // create once and reuse
-    // var pos = new THREE.Vector3(); // create once and reuse
+    var vec = new THREE.Vector3(); // create once and reuse
+    var pos = new THREE.Vector3(); // create once and reuse
 
-    // vec.set(
-    //   (event.clientX / window.innerWidth) * 2 - 1,
-    //   -(event.clientY / window.innerHeight) * 2 + 1,
-    //   0
-    // );
+    vec.set(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      -(event.clientY / window.innerHeight) * 2 + 1,
+      0
+    );
 
-    // vec.unproject(camera);
-    // vec.sub(camera.position).normalize();
-    // var distance = -camera.position.z / vec.z;
-    // let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
+    vec.unproject(camera);
+    vec.sub(camera.position).normalize();
+    var distance = -camera.position.z / vec.z;
+    let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
 
     // end test
 
-    handVector.unproject(camera);
-    const cameraPosition = camera.position;
-    const dir = handVector.sub(cameraPosition).normalize();
-    const distance = -cameraPosition.z / dir.z;
-    const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
+    // handVector.unproject(camera);
+    // const cameraPosition = camera.position;
+    // const dir = handVector.sub(cameraPosition).normalize();
+    // const distance = -cameraPosition.z / dir.z;
+    // const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
 
     hand.mesh.position.copy(newPos);
     hand.mesh.position.z = 0;
@@ -130,7 +130,7 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
 
       if (collisionResults.length > 0) {
         if (collisionResults[0].distance < 500) {
-          // console.log("fruit!!!");
+          console.log("fruit!!!");
           return true;
         }
 

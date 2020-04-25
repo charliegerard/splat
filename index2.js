@@ -4,10 +4,6 @@ import {
   drawKeypoints,
   draw3DHand,
   moveHands,
-  initTrailOptions,
-  initSceneGeometry,
-  initTrailRenderers,
-  updateTrailTarget,
 } from "./utils.js";
 const fruits = [];
 const fruitsObjects = [];
@@ -29,6 +25,16 @@ let fruitModel;
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
 var trailTarget;
+let trail;
+let baseTrailMaterial;
+let texturedTrailMaterial;
+let trailHeadGeometry;
+let trailMaterial;
+let rendererContainer;
+let lastTrailUpdateTime;
+let lastTrailResetTime;
+
+let options;
 
 navigator.getUserMedia =
   navigator.getUserMedia ||
@@ -58,34 +64,61 @@ const guiState = {
   net: null,
 };
 
+window.onload = async () => {
+  newFruitSound = new Howl({ src: ["fruit.m4a"] });
+  fruitSliced = new Howl({ src: ["splash.m4a"] });
+
+  lastTrailUpdateTime = performance.now();
+  lastTrailResetTime = performance.now();
+
+  await loadPoseNet();
+  initScene();
+  initTrailOptions();
+  initLights();
+  loadFruitsModels();
+
+  updateStartButton();
+
+  // trail
+  initSceneGeometry(function () {
+    initTrailRenderers(function () {
+      initRenderer();
+      animate();
+    });
+  });
+};
+
+const resetCamera = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  camera.position.set(0, 200, 400);
+  camera.lookAt(scene.position);
+};
+
+const initRenderer = () => {
+  renderer = new THREE.WebGLRenderer({
+    alpha: true,
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  rendererContainer = document.getElementsByClassName("game")[0];
+  rendererContainer.appendChild(renderer.domElement);
+};
+
 const generateFruits = () => {
   for (var i = 0; i < 10; i++) {
     const randomFruit = fruits[generateRandomXPosition(0, 1)];
     const randomXPosition = generateRandomXPosition(-1000, 1000);
     const randomYPosition = generateRandomXPosition(-850, -800);
-    // const randomYPosition = 500;
-
     let newFruit = randomFruit.clone();
-
     newFruit.position.x = randomXPosition;
     newFruit.position.y = randomYPosition;
     newFruit.position.z = 100;
-
-    // newFruit.rotation.set(-7.5, 2.5, -5);
-    // newFruit.scale.set(0.005, 0.005, 0.005);
-
-    // if (randomFruit.name === "apple") {
-    //   newFruit.scale.set(0.005, 0.005, 0.005);
-    // } else {
-    //   newFruit.scale.set(0.015, 0.015, 0.015);
-    // }
 
     if (randomFruit.name === "apple") {
       newFruit.position.z = -300;
     }
 
     speed = 10;
-    // speed = 0.05;
     newFruit.speed = speed;
     newFruit.soundPlayed = false;
     newFruit.direction = "up";
@@ -96,17 +129,16 @@ const generateFruits = () => {
   }
 };
 
-const setupLights = () => {
+const initLights = () => {
   let ambientLight = new THREE.AmbientLight(
     new THREE.Color("rgb(255,255,255)")
   );
   ambientLight.position.set(10, 0, 50);
   scene.add(ambientLight);
 
-  let spotLight = new THREE.SpotLight(0xffffff);
-  spotLight.position.set(10, 0, 50);
-  spotLight.castShadow = true;
-  scene.add(spotLight);
+  let pointLight = new THREE.PointLight(0xffffff, 2, 1000, 1);
+  pointLight.position.set(0, 40, 0);
+  scene.add(pointLight);
 };
 
 const setupCamera = async () => {
@@ -239,9 +271,16 @@ const detectPoseInRealTime = (video, net) => {
   poseDetectionFrame();
 };
 
+const render = () => {
+  renderer.render(scene, camera);
+};
+
 const animate = () => {
   requestAnimationFrame(animate);
   // detectPoseInRealTime(video, net);
+
+  var time = performance.now();
+  updateTrailTarget(time);
 
   if (fruitsObjects) {
     fruitsObjects.map((fruit, index) => {
@@ -295,9 +334,16 @@ const animate = () => {
     trailTarget.position.x = vec.x;
     trailTarget.position.y = vec.y;
     trailTarget.position.z = vec.z;
-    // if (hands) {
-    //   moveHands(hands, camera, fruitsObjects, e);
-    // }
+
+    if (hands) {
+      let test = moveHands(hands, camera, fruitsObjects, e);
+
+      if (test.includes(true)) {
+        console.log("touched fruit");
+        fruitSliced.play();
+        document.querySelector(".score span").innerText = score++;
+      }
+    }
   };
 
   // if (hands.length) {
@@ -310,7 +356,7 @@ const animate = () => {
   //   }
   // }
 
-  renderer.render(scene, camera);
+  render();
 };
 
 const updateStartButton = () => {
@@ -353,12 +399,6 @@ const loadFruitsModels = () => {
             fruitModel = mesh;
             fruitModel.name = fruit.name;
 
-            // if (fruitModel.name === "apple") {
-            //   fruitModel.scale.set(0.005, 0.005, 0.005);
-            // } else {
-            //   fruitModel.scale.set(0.015, 0.015, 0.015);
-            // }
-
             fruits.push(fruitModel);
           }
         });
@@ -368,7 +408,37 @@ const loadFruitsModels = () => {
   });
 };
 
-const init3DScene = async () => {
+// const init3DScene = async () => {
+//   var tanFOV = Math.tan(((Math.PI / 180) * camera.fov) / 2);
+//   var windowHeight = window.innerHeight;
+
+//   window.addEventListener("resize", onWindowResize, false);
+
+//   function onWindowResize(event) {
+//     canvas.width = window.innerWidth;
+//     canvas.height = window.innerHeight;
+//     camera.aspect = window.innerWidth / window.innerHeight;
+
+//     // adjust the FOV
+//     camera.fov =
+//       (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
+
+//     camera.updateProjectionMatrix();
+//     camera.lookAt(scene.position);
+
+//     renderer.setSize(window.innerWidth, window.innerHeight);
+//     renderer.render(scene, camera);
+//   }
+// };
+
+const onWindowResize = () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  resetCamera();
+};
+
+window.addEventListener("resize", onWindowResize, false);
+
+const initScene = () => {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(
     75,
@@ -378,61 +448,150 @@ const init3DScene = async () => {
   );
   // camera.position.z = 5;
   camera.position.z = 500;
-
-  renderer = new THREE.WebGLRenderer({ alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.getElementsByClassName("game")[0].appendChild(renderer.domElement);
-
-  setupLights();
-
-  var tanFOV = Math.tan(((Math.PI / 180) * camera.fov) / 2);
-  var windowHeight = window.innerHeight;
-
-  window.addEventListener("resize", onWindowResize, false);
-
-  function onWindowResize(event) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    camera.aspect = window.innerWidth / window.innerHeight;
-
-    // adjust the FOV
-    camera.fov =
-      (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
-
-    camera.updateProjectionMatrix();
-    camera.lookAt(scene.position);
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.render(scene, camera);
-  }
-};
-
-window.onload = async () => {
-  newFruitSound = new Howl({ src: ["fruit.m4a"] });
-  fruitSliced = new Howl({ src: ["splash.m4a"] });
-  await loadPoseNet();
-  await init3DScene();
-  loadFruitsModels();
-
-  updateStartButton();
-
-  // trail
-  initTrailOptions();
-  initSceneGeometry(function () {
-    initTrailRenderers(function (scene) {
-      animate();
-      var time = performance.now();
-
-      updateTrailTarget(time);
-    }, scene);
-  }, scene);
+  scene.add(camera);
+  resetCamera();
 };
 
 document.getElementsByTagName("button")[0].onclick = () => {
   if (net) {
     document.getElementsByClassName("intro")[0].style.display = "none";
     generateFruits();
-    animate();
     detectPoseInRealTime(video, net);
   }
 };
+
+export const initTrailOptions = () => {
+  options = {
+    headRed: 1.0,
+    headGreen: 0.0,
+    headBlue: 1.0,
+    headAlpha: 0.75,
+    tailRed: 0.0,
+    tailGreen: 1.0,
+    tailBlue: 1.0,
+    tailAlpha: 0.35,
+    trailLength: 100,
+    textureTileFactorS: 10.0,
+    textureTileFactorT: 0.8,
+    dragTexture: false,
+    depthWrite: false,
+  };
+};
+
+export const initSceneGeometry = (onFinished) => {
+  initTrailHeadGeometries();
+  initTrailTarget();
+
+  if (onFinished) {
+    onFinished();
+  }
+};
+
+let circlePoints;
+
+const initTrailHeadGeometries = () => {
+  circlePoints = [];
+  var twoPI = Math.PI * 2;
+  var index = 0;
+  var scale = 10.0;
+  var inc = twoPI / 32.0;
+
+  for (var i = 0; i <= twoPI + inc; i += inc) {
+    var vector = new THREE.Vector3();
+    vector.set(Math.cos(i) * scale, Math.sin(i) * scale, 0);
+    circlePoints[index] = vector;
+    index++;
+  }
+};
+
+const initTrailTarget = () => {
+  var geometry = new THREE.CircleGeometry(5, 32);
+  var material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  trailTarget = new THREE.Mesh(geometry, material);
+  trailTarget.position.set(0, 0, 0);
+  trailTarget.scale.multiplyScalar(1);
+  trailTarget.receiveShadow = false;
+
+  scene.add(trailTarget);
+};
+
+const initTrailRenderers = (callback) => {
+  trail = new THREE.TrailRenderer(scene, false);
+
+  baseTrailMaterial = THREE.TrailRenderer.createBaseMaterial();
+
+  var textureLoader = new THREE.TextureLoader();
+  textureLoader.load("sparkle4.jpg", function (tex) {
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+
+    texturedTrailMaterial = THREE.TrailRenderer.createTexturedMaterial();
+    texturedTrailMaterial.uniforms.texture.value = tex;
+
+    continueInitialization();
+
+    if (callback) {
+      callback();
+    }
+  });
+
+  function continueInitialization() {
+    trailHeadGeometry = circlePoints;
+    trailMaterial = baseTrailMaterial;
+    initializeTrail();
+  }
+};
+
+const initializeTrail = () => {
+  trail.initialize(
+    trailMaterial,
+    Math.floor(options.trailLength),
+    options.dragTexture ? 1.0 : 0.0,
+    0,
+    trailHeadGeometry,
+    trailTarget
+  );
+  updateTrailColors();
+  updateTrailTextureTileSize();
+  trailMaterial.depthWrite = options.depthWrite;
+  trail.activate();
+};
+
+const updateTrailColors = () => {
+  trailMaterial.uniforms.headColor.value.set(
+    options.headRed,
+    options.headGreen,
+    options.headBlue,
+    options.headAlpha
+  );
+  trailMaterial.uniforms.tailColor.value.set(
+    options.tailRed,
+    options.tailGreen,
+    options.tailBlue,
+    options.tailAlpha
+  );
+};
+
+const updateTrailTextureTileSize = () => {
+  trailMaterial.uniforms.textureTileFactor.value.set(
+    options.textureTileFactorS,
+    options.textureTileFactorT
+  );
+};
+
+const updateTrailTarget = (function updateTrailTarget() {
+  var tempRotationMatrix = new THREE.Matrix4();
+  var tempTranslationMatrix = new THREE.Matrix4();
+
+  return function updateTrailTarget(time) {
+    if (time - lastTrailUpdateTime > 10) {
+      trail.advance();
+      lastTrailUpdateTime = time;
+    } else {
+      trail.updateHead();
+    }
+
+    tempRotationMatrix.identity();
+    tempTranslationMatrix.identity();
+  };
+})();

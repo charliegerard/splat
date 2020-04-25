@@ -7,11 +7,11 @@
 - [x] Sounds
 - [x] Add 3D models
 - [x] Home screen
-- [x] Mobile screen
 - [x] Score
 - [x] Resize browser windows
+- [ ] Mobile screen
 - [ ] Debounce collision
 - [ ] Fix loading for performance
 - [ ] Hands trails
 - [ ] Add gravity
-- [ ] Fix raycasting
+- [x] Fix raycasting

@@ -44,7 +44,6 @@
       );
 
       function init() {
-        simulationPause = false;
         lastTrailUpdateTime = performance.now();
         lastTrailResetTime = performance.now();
 
@@ -75,23 +74,18 @@
           tailAlpha: 0.35,
 
           trailLength: 100,
-          //   trailType: TrailTypes.Textured,
-          //   trailShape: TrailShapes.Plane,
 
           textureTileFactorS: 10.0,
           textureTileFactorT: 0.8,
 
           dragTexture: false,
           depthWrite: false,
-
-          pauseSim: false,
         };
       }
 
       function initRenderer() {
         renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(screenWidth, screenHeight);
-        renderer.sortObjects = false;
         rendererContainer = document.getElementById("renderingContainer");
         rendererContainer.appendChild(renderer.domElement);
       }
@@ -135,18 +129,18 @@
           index++;
         }
 
-        starPoints = [];
-        starPoints.push(new THREE.Vector3(0, 16));
-        starPoints.push(new THREE.Vector3(4, 4));
-        starPoints.push(new THREE.Vector3(16, 4));
-        starPoints.push(new THREE.Vector3(8, -4));
-        starPoints.push(new THREE.Vector3(12, -16));
-        starPoints.push(new THREE.Vector3(0, -8));
-        starPoints.push(new THREE.Vector3(-12, -16));
-        starPoints.push(new THREE.Vector3(-8, -4));
-        starPoints.push(new THREE.Vector3(-16, 4));
-        starPoints.push(new THREE.Vector3(-4, 4));
-        starPoints.push(new THREE.Vector3(0, 16));
+        // starPoints = [];
+        // starPoints.push(new THREE.Vector3(0, 16));
+        // starPoints.push(new THREE.Vector3(4, 4));
+        // starPoints.push(new THREE.Vector3(16, 4));
+        // starPoints.push(new THREE.Vector3(8, -4));
+        // starPoints.push(new THREE.Vector3(12, -16));
+        // starPoints.push(new THREE.Vector3(0, -8));
+        // starPoints.push(new THREE.Vector3(-12, -16));
+        // starPoints.push(new THREE.Vector3(-8, -4));
+        // starPoints.push(new THREE.Vector3(-16, 4));
+        // starPoints.push(new THREE.Vector3(-4, 4));
+        // starPoints.push(new THREE.Vector3(0, 16));
       }
 
       function initTrailTarget() {
@@ -270,13 +264,13 @@
               .copy(camera.position)
               .add(vec.multiplyScalar(distance));
 
-            currentTargetPosition.copy(newPos);
+            // currentTargetPosition.copy(newPos);
 
-            lastDirection.copy(currentDirection);
+            // lastDirection.copy(currentDirection);
 
-            currentDirection.copy(currentTargetPosition);
-            currentDirection.sub(lastTargetPosition);
-            currentDirection.normalize();
+            // currentDirection.copy(currentTargetPosition);
+            // currentDirection.sub(lastTargetPosition);
+            // currentDirection.normalize();
 
             // tempUp.crossVectors(currentDirection, baseForward);
             // var angle = baseForward.angleTo(currentDirection);
@@ -288,16 +282,20 @@
             //   lastRotationMatrix.copy(tempRotationMatrix);
             // }
 
-            tempTranslationMatrix.makeTranslation(
-              currentTargetPosition.x,
-              currentTargetPosition.y,
-              currentTargetPosition.z
-            );
+            // tempTranslationMatrix.makeTranslation(
+            //   currentTargetPosition.x,
+            //   currentTargetPosition.y,
+            //   currentTargetPosition.z
+            // );
             // tempTranslationMatrix.multiply(tempRotationMatrix);
 
             // trailTarget.matrix.identity();
-            trailTarget.applyMatrix(tempTranslationMatrix);
-            trailTarget.updateMatrixWorld();
+            // trailTarget.applyMatrix(tempTranslationMatrix);
+            // trailTarget.updateMatrixWorld();
+
+            trailTarget.position.x = vec.x;
+            trailTarget.position.y = vec.y;
+            trailTarget.position.z = vec.z;
           };
 
           //   currentTargetPosition.x = Math.sin(scaledTime) * areaScale;
@@ -383,7 +381,7 @@
       function update() {
         var time = performance.now();
 
-        if (!options.pauseSim) updateTrailTarget(time);
+        updateTrailTarget(time);
       }
 
       function render() {
