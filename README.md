@@ -12,6 +12,6 @@
 - [ ] Mobile screen
 - [ ] Debounce collision
 - [ ] Fix loading for performance
-- [ ] Hands trails
+- [x] Hands trails
 - [ ] Add gravity
 - [x] Fix raycasting

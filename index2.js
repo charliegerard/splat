@@ -30,9 +30,6 @@ navigator.getUserMedia =
   navigator.mozGetUserMedia;
 
 window.onload = async () => {
-  newFruitSound = new Howl({ src: ["assets/fruit.m4a"] });
-  fruitSliced = new Howl({ src: ["assets/splash.m4a"] });
-
   initSounds();
 
   lastTrailUpdateTime = performance.now();
@@ -45,13 +42,16 @@ window.onload = async () => {
   loadFruitsModels();
 
   updateStartButton();
+  initRenderer();
 
   initSceneGeometry(function () {
     initTrailRenderers(function () {
-      initRenderer();
-      animate();
+      //   animate();
     });
   });
+  //   initSceneGeometry(function () {
+  //     initTrailRenderers();
+  //   });
 };
 
 const detectPoseInRealTime = (video, net) => {
@@ -94,6 +94,7 @@ const detectPoseInRealTime = (video, net) => {
 
             if (!hasLeftHand) {
               handMesh = draw3DHand();
+              //   handMesh = trailTarget;
               hands.push({
                 mesh: handMesh,
                 coordinates: leftWrist.position,
@@ -110,29 +111,29 @@ const detectPoseInRealTime = (video, net) => {
               (hands[leftHandIndex].coordinates = leftWrist.position);
           }
 
-          if (rightWrist) {
-            const hasRightHand = hands.find(
-              (hand) => hand.name === "rightHand"
-            );
+          //   if (rightWrist) {
+          //     const hasRightHand = hands.find(
+          //       (hand) => hand.name === "rightHand"
+          //     );
 
-            if (!hasRightHand) {
-              handMesh = draw3DHand();
-              hands.push({
-                mesh: handMesh,
-                coordinates: rightWrist.position,
-                name: "rightHand",
-              });
-              scene.add(handMesh);
-            }
-            const rightHandIndex = hands.findIndex(
-              (hand) => hand.name === "rightHand"
-            );
+          //     if (!hasRightHand) {
+          //       handMesh = draw3DHand();
+          //       hands.push({
+          //         mesh: handMesh,
+          //         coordinates: rightWrist.position,
+          //         name: "rightHand",
+          //       });
+          //       scene.add(handMesh);
+          //     }
+          //     const rightHandIndex = hands.findIndex(
+          //       (hand) => hand.name === "rightHand"
+          //     );
 
-            rightHandIndex !== -1 &&
-              (hands[rightHandIndex].coordinates = rightWrist.position);
-          }
+          //     rightHandIndex !== -1 &&
+          //       (hands[rightHandIndex].coordinates = rightWrist.position);
+          //   }
 
-          // moveHands(hands, camera, fruitsObjects);
+          //   moveHands(hands, camera, fruitsObjects);
         }
       }
     });
@@ -182,45 +183,45 @@ const animate = () => {
     }
   }
 
-  window.onmousemove = (e) => {
-    var vec = new THREE.Vector3(); // create once and reuse
-    var pos = new THREE.Vector3(); // create once and reuse
+  //   window.onmousemove = (e) => {
+  //     var vec = new THREE.Vector3(); // create once and reuse
+  //     var pos = new THREE.Vector3(); // create once and reuse
 
-    vec.set(
-      (e.clientX / window.innerWidth) * 2 - 1,
-      -(e.clientY / window.innerHeight) * 2 + 1,
-      100
-    );
+  //     vec.set(
+  //       (e.clientX / window.innerWidth) * 2 - 1,
+  //       -(e.clientY / window.innerHeight) * 2 + 1,
+  //       100
+  //     );
 
-    vec.unproject(camera);
-    vec.sub(camera.position).normalize();
-    var distance = -camera.position.z / vec.z;
-    let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
+  //     vec.unproject(camera);
+  //     vec.sub(camera.position).normalize();
+  //     var distance = -camera.position.z / vec.z;
+  //     let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
 
-    trailTarget.position.x = vec.x;
-    trailTarget.position.y = vec.y;
-    trailTarget.position.z = vec.z;
+  //     trailTarget.position.x = vec.x;
+  //     trailTarget.position.y = vec.y;
+  //     trailTarget.position.z = vec.z;
 
-    if (hands) {
-      let test = moveHands(hands, camera, fruitsObjects, e);
+  //     if (hands) {
+  //       let test = moveHands(hands, camera, fruitsObjects, e);
 
-      if (test.includes(true)) {
-        console.log("touched fruit");
-        fruitSliced.play();
-        document.querySelector(".score span").innerText = score++;
-      }
+  //       if (test.includes(true)) {
+  //         console.log("touched fruit");
+  //         fruitSliced.play();
+  //         document.querySelector(".score span").innerText = score++;
+  //       }
+  //     }
+  //   };
+
+  if (hands.length) {
+    let test = moveHands(hands, camera, fruitsObjects);
+
+    if (test.includes(true)) {
+      console.log("touched fruit");
+      fruitSliced.play();
+      document.querySelector(".score span").innerText = score++;
     }
-  };
-
-  // if (hands.length) {
-  //   let test = moveHands(hands, camera, fruitsObjects);
-
-  //   if (test.includes(true)) {
-  //     console.log("touched fruit");
-  //     fruitSliced.play();
-  //     document.querySelector(".score span").innerText = score++;
-  //   }
-  // }
+  }
 
   render();
 };
@@ -232,6 +233,8 @@ document.getElementsByTagName("button")[0].onclick = () => {
     document.getElementsByClassName("intro")[0].style.display = "none";
     generateFruits();
     detectPoseInRealTime(video, net);
+
+    animate();
   }
 };
 
