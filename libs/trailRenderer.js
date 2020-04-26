@@ -299,32 +299,32 @@ THREE.TrailRenderer.prototype.initializeGeometry = function () {
 
   var nodeIDAttribute = new THREE.BufferAttribute(nodeIDs, 1);
   nodeIDAttribute.setDynamic(true);
-  geometry.addAttribute("nodeID", nodeIDAttribute);
+  geometry.setAttribute("nodeID", nodeIDAttribute);
 
   var nodeVertexIDAttribute = new THREE.BufferAttribute(nodeVertexIDs, 1);
   nodeVertexIDAttribute.setDynamic(true);
-  geometry.addAttribute("nodeVertexID", nodeVertexIDAttribute);
+  geometry.setAttribute("nodeVertexID", nodeVertexIDAttribute);
 
   var nodeCenterAttribute = new THREE.BufferAttribute(
     nodeCenters,
     THREE.TrailRenderer.PositionComponentCount
   );
   nodeCenterAttribute.setDynamic(true);
-  geometry.addAttribute("nodeCenter", nodeCenterAttribute);
+  geometry.setAttribute("nodeCenter", nodeCenterAttribute);
 
   var positionAttribute = new THREE.BufferAttribute(
     positions,
     THREE.TrailRenderer.PositionComponentCount
   );
   positionAttribute.setDynamic(true);
-  geometry.addAttribute("position", positionAttribute);
+  geometry.setAttribute("position", positionAttribute);
 
   var uvAttribute = new THREE.BufferAttribute(
     uvs,
     THREE.TrailRenderer.UVComponentCount
   );
   uvAttribute.setDynamic(true);
-  geometry.addAttribute("uv", uvAttribute);
+  geometry.setAttribute("uv", uvAttribute);
 
   var indexAttribute = new THREE.BufferAttribute(indices, 1);
   indexAttribute.setDynamic(true);

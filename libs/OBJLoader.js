@@ -537,13 +537,13 @@ THREE.OBJLoader = (function () {
 
         var buffergeometry = new THREE.BufferGeometry();
 
-        buffergeometry.addAttribute(
+        buffergeometry.setAttribute(
           "position",
           new THREE.Float32BufferAttribute(geometry.vertices, 3)
         );
 
         if (geometry.normals.length > 0) {
-          buffergeometry.addAttribute(
+          buffergeometry.setAttribute(
             "normal",
             new THREE.Float32BufferAttribute(geometry.normals, 3)
           );
@@ -553,14 +553,14 @@ THREE.OBJLoader = (function () {
 
         if (geometry.colors.length > 0) {
           hasVertexColors = true;
-          buffergeometry.addAttribute(
+          buffergeometry.setAttribute(
             "color",
             new THREE.Float32BufferAttribute(geometry.colors, 3)
           );
         }
 
         if (geometry.uvs.length > 0) {
-          buffergeometry.addAttribute(
+          buffergeometry.setAttribute(
             "uv",
             new THREE.Float32BufferAttribute(geometry.uvs, 2)
           );
