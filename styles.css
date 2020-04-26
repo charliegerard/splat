@@ -9,9 +9,12 @@ main {
   align-items: center;
   width: 100%;
   height: 100%;
-  background-image: url("./background.png");
+  /* background-image: url("./background.png"); */
+  /* background-image: url("./Wiki-background.jpg"); */
+  background-image: url("./test2.jpg");
   background-repeat: no-repeat;
   background-size: cover;
+
   z-index: 12;
 }
 
@@ -22,6 +25,8 @@ main {
   font-size: 2em;
   color: white;
   z-index: 100;
+  display: none;
+  font-family: Helvetica;
 }
 
 .game {
@@ -61,12 +66,30 @@ canvas#output {
 }
 
 .intro h1 {
-  font-size: 4em;
+  font-size: 7em;
+  /* color: rgb(161, 110, 182); */
+  color: yellow;
+  text-shadow: 3px 3px black;
+  font-family: "Bangers", cursive;
+  letter-spacing: 5px;
 }
+
 .intro p {
-  font-size: 2em;
+  font-size: 1.5em;
+  color: white;
+  margin-bottom: 3em;
 }
 .intro button {
   padding: 0.5em 1em;
-  font-size: 1em;
+  font-size: 1.5em;
+  border-radius: 3px;
+}
+
+.mobile-intro {
+  display: none;
+  color: white;
+  font-family: Helvetica;
+  width: 90%;
+  text-align: center;
+  line-height: 1.5em;
 }

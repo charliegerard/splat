@@ -11,6 +11,18 @@ export const generateRandomSpeed = (min, max) => {
   return Math.random() * (max - min) + min;
 };
 
+const isAndroid = () => {
+  return /Android/i.test(navigator.userAgent);
+};
+
+const isiOS = () => {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+};
+
+export const isMobile = () => {
+  return isAndroid() || isiOS();
+};
+
 export const draw3DHand = () => {
   const geometry = new THREE.BoxGeometry(50, 50, 50);
   const material = new THREE.MeshPhongMaterial({
@@ -31,34 +43,34 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
     handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
     handVector.z = 0;
 
-    handVector.unproject(camera);
-    const cameraPosition = camera.position;
-    const dir = handVector.sub(cameraPosition).normalize();
-    const distance = -cameraPosition.z / dir.z;
-    const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
+    // handVector.unproject(camera);
+    // const cameraPosition = camera.position;
+    // const dir = handVector.sub(cameraPosition).normalize();
+    // const distance = -cameraPosition.z / dir.z;
+    // const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
 
     // mouse
-    // var vec = new THREE.Vector3(); // create once and reuse
-    // var pos = new THREE.Vector3(); // create once and reuse
+    var vec = new THREE.Vector3(); // create once and reuse
+    var pos = new THREE.Vector3(); // create once and reuse
 
-    // vec.set(
-    //   (event.clientX / window.innerWidth) * 2 - 1,
-    //   -(event.clientY / window.innerHeight) * 2 + 1,
-    //   100
-    // );
+    vec.set(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      -(event.clientY / window.innerHeight) * 2 + 1,
+      100
+    );
 
-    // vec.unproject(camera);
-    // vec.sub(camera.position).normalize();
-    // var distance = -camera.position.z / vec.z;
-    // let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
+    vec.unproject(camera);
+    vec.sub(camera.position).normalize();
+    var distance = -camera.position.z / vec.z;
+    let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
     // end mouse
 
     hand.mesh.position.copy(newPos);
     hand.mesh.position.z = 0;
 
-    trailTarget.position.x = handVector.x;
-    trailTarget.position.y = handVector.y;
-    trailTarget.position.z = handVector.z;
+    // trailTarget.position.x = handVector.x;
+    // trailTarget.position.y = handVector.y;
+    // trailTarget.position.z = handVector.z;
 
     let handGeometry = hand.mesh.geometry;
     var originPoint = hand.mesh.position.clone();
@@ -80,10 +92,11 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
       var collisionResults = ray.intersectObjects(fruitsObjects);
 
       if (collisionResults.length > 0) {
-        console.log("no???");
         if (collisionResults[0].distance < 500) {
-          console.log("fruit!!!");
-          return true;
+          if (collisionResults[0].object.hit === false) {
+            collisionResults[0].object.hit = true;
+            return true;
+          }
         }
       }
 
@@ -307,6 +320,7 @@ export const generateFruits = () => {
     newFruit.speed = speed;
     newFruit.soundPlayed = false;
     newFruit.direction = "up";
+    newFruit.hit = false;
     fruitsObjects.push(newFruit);
 
     scene.add(newFruit);

@@ -17,6 +17,7 @@ import {
   initSceneGeometry,
   initScene,
   initTrailRenderers,
+  isMobile,
 } from "./utils.js";
 const hands = [];
 let fruit;
@@ -30,6 +31,16 @@ navigator.getUserMedia =
   navigator.mozGetUserMedia;
 
 window.onload = async () => {
+  if (isMobile()) {
+    const introSection = document.getElementsByClassName("intro")[0];
+    introSection.style.display = "none";
+
+    const mobileIntroSection = document.getElementsByClassName(
+      "mobile-intro"
+    )[0];
+    mobileIntroSection.style.display = "block";
+  }
+
   initSounds();
 
   lastTrailUpdateTime = performance.now();
@@ -183,45 +194,45 @@ const animate = () => {
     }
   }
 
-  //   window.onmousemove = (e) => {
-  //     var vec = new THREE.Vector3(); // create once and reuse
-  //     var pos = new THREE.Vector3(); // create once and reuse
+  window.onmousemove = (e) => {
+    var vec = new THREE.Vector3(); // create once and reuse
+    var pos = new THREE.Vector3(); // create once and reuse
 
-  //     vec.set(
-  //       (e.clientX / window.innerWidth) * 2 - 1,
-  //       -(e.clientY / window.innerHeight) * 2 + 1,
-  //       100
-  //     );
+    vec.set(
+      (e.clientX / window.innerWidth) * 2 - 1,
+      -(e.clientY / window.innerHeight) * 2 + 1,
+      100
+    );
 
-  //     vec.unproject(camera);
-  //     vec.sub(camera.position).normalize();
-  //     var distance = -camera.position.z / vec.z;
-  //     let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
+    vec.unproject(camera);
+    vec.sub(camera.position).normalize();
+    var distance = -camera.position.z / vec.z;
+    let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
 
-  //     trailTarget.position.x = vec.x;
-  //     trailTarget.position.y = vec.y;
-  //     trailTarget.position.z = vec.z;
+    trailTarget.position.x = vec.x;
+    trailTarget.position.y = vec.y;
+    trailTarget.position.z = vec.z;
 
-  //     if (hands) {
-  //       let test = moveHands(hands, camera, fruitsObjects, e);
+    if (hands) {
+      let test = moveHands(hands, camera, fruitsObjects, e);
 
-  //       if (test.includes(true)) {
-  //         console.log("touched fruit");
-  //         fruitSliced.play();
-  //         document.querySelector(".score span").innerText = score++;
-  //       }
-  //     }
-  //   };
-
-  if (hands.length) {
-    let test = moveHands(hands, camera, fruitsObjects);
-
-    if (test.includes(true)) {
-      console.log("touched fruit");
-      fruitSliced.play();
-      document.querySelector(".score span").innerText = score++;
+      if (test.includes(true)) {
+        console.log("touched fruit");
+        fruitSliced.play();
+        document.querySelector(".score span").innerText = score++;
+      }
     }
-  }
+  };
+
+  //   if (hands.length) {
+  //     let test = moveHands(hands, camera, fruitsObjects);
+
+  //     if (test.includes(true)) {
+  //       console.log("touched fruit");
+  //       fruitSliced.play();
+  //       document.querySelector(".score span").innerText = score++;
+  //     }
+  //   }
 
   render();
 };
@@ -231,6 +242,7 @@ window.addEventListener("resize", onWindowResize, false);
 document.getElementsByTagName("button")[0].onclick = () => {
   if (net) {
     document.getElementsByClassName("intro")[0].style.display = "none";
+    document.getElementsByClassName("score")[0].style.display = "block";
     generateFruits();
     detectPoseInRealTime(video, net);
 

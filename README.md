@@ -9,7 +9,7 @@
 - [x] Home screen
 - [x] Score
 - [x] Resize browser windows
-- [ ] Mobile screen
+- [x] Mobile screen
 - [ ] Debounce collision
 - [ ] Fix loading for performance
 - [x] Hands trails
