@@ -1,6 +1,9 @@
+// bomb model https://poly.google.com/view/0mwBvcViY7P
+
 const fruitsModels = [
   { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
   { model: "apple/Apple", material: "apple/Apple", name: "apple" },
+  // { model: "bomb/bomb", material: "bomb/bomb", name: "bomb" },
 ];
 
 export const generateRandomXPosition = (min, max) => {
@@ -43,34 +46,34 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
     handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
     handVector.z = 0;
 
-    // handVector.unproject(camera);
-    // const cameraPosition = camera.position;
-    // const dir = handVector.sub(cameraPosition).normalize();
-    // const distance = -cameraPosition.z / dir.z;
-    // const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
+    handVector.unproject(camera);
+    const cameraPosition = camera.position;
+    const dir = handVector.sub(cameraPosition).normalize();
+    const distance = -cameraPosition.z / dir.z;
+    const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
 
     // mouse
-    var vec = new THREE.Vector3(); // create once and reuse
-    var pos = new THREE.Vector3(); // create once and reuse
+    // var vec = new THREE.Vector3(); // create once and reuse
+    // var pos = new THREE.Vector3(); // create once and reuse
 
-    vec.set(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1,
-      100
-    );
+    // vec.set(
+    //   (event.clientX / window.innerWidth) * 2 - 1,
+    //   -(event.clientY / window.innerHeight) * 2 + 1,
+    //   100
+    // );
 
-    vec.unproject(camera);
-    vec.sub(camera.position).normalize();
-    var distance = -camera.position.z / vec.z;
-    let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
+    // vec.unproject(camera);
+    // vec.sub(camera.position).normalize();
+    // var distance = -camera.position.z / vec.z;
+    // let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
     // end mouse
 
     hand.mesh.position.copy(newPos);
     hand.mesh.position.z = 0;
 
-    // trailTarget.position.x = handVector.x;
-    // trailTarget.position.y = handVector.y;
-    // trailTarget.position.z = handVector.z;
+    trailTarget.position.x = handVector.x;
+    trailTarget.position.y = handVector.y;
+    trailTarget.position.z = handVector.z;
 
     let handGeometry = hand.mesh.geometry;
     var originPoint = hand.mesh.position.clone();
@@ -303,14 +306,12 @@ export const loadPoseNet = async () => {
 };
 
 export const generateFruits = () => {
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < 5; i++) {
     const randomFruit = fruits[generateRandomXPosition(0, 1)];
     const randomXPosition = generateRandomXPosition(-1000, 1000);
     const randomYPosition = generateRandomXPosition(-850, -800);
     let newFruit = randomFruit.clone();
-    newFruit.position.x = randomXPosition;
-    newFruit.position.y = randomYPosition;
-    newFruit.position.z = 100;
+    newFruit.position.set(randomXPosition, randomYPosition, 100);
 
     if (randomFruit.name === "apple") {
       newFruit.position.z = -300;
@@ -342,15 +343,17 @@ export const loadFruitsModels = () => {
         object.traverse(function (child) {
           if (child instanceof THREE.Mesh) {
             var mesh = new THREE.Mesh(child.geometry, child.material);
-
             fruitModel = mesh;
             fruitModel.name = fruit.name;
-
             fruits.push(fruitModel);
           }
         });
+        if (fruits.length === fruitsModels.length) {
+          generateFruits();
+        }
       });
     });
+
     return fruits;
   });
 };

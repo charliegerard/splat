@@ -24,6 +24,12 @@ let fruit;
 let handMesh;
 let score = 0;
 let canvas = document.getElementById("output");
+const flipHorizontal = false;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let poses = [];
+let minPoseConfidence;
+let minPartConfidence;
 
 navigator.getUserMedia =
   navigator.getUserMedia ||
@@ -39,6 +45,7 @@ window.onload = async () => {
       "mobile-intro"
     )[0];
     mobileIntroSection.style.display = "block";
+    return;
   }
 
   initSounds();
@@ -47,118 +54,112 @@ window.onload = async () => {
   lastTrailResetTime = performance.now();
 
   await loadPoseNet();
+
   initScene();
+  initRenderer();
   initTrailOptions();
   initLights();
+
+  //   initPoseNetSettings(video);
   loadFruitsModels();
 
-  updateStartButton();
-  initRenderer();
-
   initSceneGeometry(function () {
-    initTrailRenderers(function () {
-      //   animate();
-    });
+    initTrailRenderers();
+    updateStartButton();
   });
-  //   initSceneGeometry(function () {
-  //     initTrailRenderers();
-  //   });
 };
 
-const detectPoseInRealTime = (video, net) => {
-  const flipHorizontal = false;
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+const initPoseNetSettings = async (video) => {
+  const imageScaleFactor = guiState.input.imageScaleFactor;
+  const outputStride = +guiState.input.outputStride;
+  const pose = await guiState.net.estimateSinglePose(
+    video,
+    imageScaleFactor,
+    flipHorizontal,
+    outputStride
+  );
+  poses.push(pose);
 
-  async function poseDetectionFrame() {
-    // Scale an image down to a certain factor. Too large of an image will slow
-    // down the GPU
-    const imageScaleFactor = guiState.input.imageScaleFactor;
-    const outputStride = +guiState.input.outputStride;
+  minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
+  minPartConfidence = +guiState.singlePoseDetection.minPartConfidence;
+};
 
-    let poses = [];
-    let minPoseConfidence;
-    let minPartConfidence;
-    switch (guiState.algorithm) {
-      case "single-pose":
-        const pose = await guiState.net.estimateSinglePose(
-          video,
-          imageScaleFactor,
-          flipHorizontal,
-          outputStride
-        );
-        poses.push(pose);
+const detectPoseInRealTime = async () => {
+  const imageScaleFactor = guiState.input.imageScaleFactor;
+  const outputStride = +guiState.input.outputStride;
+  const pose = await guiState.net.estimateSinglePose(
+    video,
+    imageScaleFactor,
+    flipHorizontal,
+    outputStride
+  );
+  poses.push(pose);
 
-        minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
-        minPartConfidence = +guiState.singlePoseDetection.minPartConfidence;
-        break;
-    }
+  minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
+  minPartConfidence = +guiState.singlePoseDetection.minPartConfidence;
 
-    poses.forEach(({ score, keypoints }) => {
-      if (score >= minPoseConfidence) {
-        if (guiState.output.showPoints) {
-          const leftWrist = keypoints.find((k) => k.part === "leftWrist");
-          const rightWrist = keypoints.find((k) => k.part === "rightWrist");
+  poses.forEach(({ score, keypoints }) => {
+    if (score >= minPoseConfidence) {
+      if (guiState.output.showPoints) {
+        const leftWrist = keypoints.find((k) => k.part === "leftWrist");
+        const rightWrist = keypoints.find((k) => k.part === "rightWrist");
 
-          if (leftWrist) {
-            const hasLeftHand = hands.find((hand) => hand.name === "leftHand");
+        if (leftWrist) {
+          const hasLeftHand = hands.find((hand) => hand.name === "leftHand");
 
-            if (!hasLeftHand) {
-              handMesh = draw3DHand();
-              //   handMesh = trailTarget;
-              hands.push({
-                mesh: handMesh,
-                coordinates: leftWrist.position,
-                name: "leftHand",
-              });
-              scene.add(handMesh);
-            }
-
-            const leftHandIndex = hands.findIndex(
-              (hand) => hand.name === "leftHand"
-            );
-
-            leftHandIndex !== -1 &&
-              (hands[leftHandIndex].coordinates = leftWrist.position);
+          if (!hasLeftHand) {
+            handMesh = draw3DHand();
+            //   handMesh = trailTarget;
+            hands.push({
+              mesh: handMesh,
+              coordinates: leftWrist.position,
+              name: "leftHand",
+            });
+            scene.add(handMesh);
           }
 
-          //   if (rightWrist) {
-          //     const hasRightHand = hands.find(
-          //       (hand) => hand.name === "rightHand"
-          //     );
+          const leftHandIndex = hands.findIndex(
+            (hand) => hand.name === "leftHand"
+          );
 
-          //     if (!hasRightHand) {
-          //       handMesh = draw3DHand();
-          //       hands.push({
-          //         mesh: handMesh,
-          //         coordinates: rightWrist.position,
-          //         name: "rightHand",
-          //       });
-          //       scene.add(handMesh);
-          //     }
-          //     const rightHandIndex = hands.findIndex(
-          //       (hand) => hand.name === "rightHand"
-          //     );
-
-          //     rightHandIndex !== -1 &&
-          //       (hands[rightHandIndex].coordinates = rightWrist.position);
-          //   }
-
-          //   moveHands(hands, camera, fruitsObjects);
+          leftHandIndex !== -1 &&
+            (hands[leftHandIndex].coordinates = leftWrist.position);
         }
-      }
-    });
-    requestAnimationFrame(poseDetectionFrame);
-  }
 
-  poseDetectionFrame();
+        //   if (rightWrist) {
+        //     const hasRightHand = hands.find(
+        //       (hand) => hand.name === "rightHand"
+        //     );
+
+        //     if (!hasRightHand) {
+        //       handMesh = draw3DHand();
+        //       hands.push({
+        //         mesh: handMesh,
+        //         coordinates: rightWrist.position,
+        //         name: "rightHand",
+        //       });
+        //       scene.add(handMesh);
+        //     }
+        //     const rightHandIndex = hands.findIndex(
+        //       (hand) => hand.name === "rightHand"
+        //     );
+
+        //     rightHandIndex !== -1 &&
+        //       (hands[rightHandIndex].coordinates = rightWrist.position);
+        //   }
+
+        //   moveHands(hands, camera, fruitsObjects);
+      }
+    }
+  });
+  requestAnimationFrame(detectPoseInRealTime);
 };
 
 const animate = () => {
   requestAnimationFrame(animate);
 
   var time = performance.now();
-  updateTrailTarget(time);
+  trailTarget && updateTrailTarget(time);
 
   if (fruitsObjects) {
     fruitsObjects.map((fruit, index) => {
@@ -188,51 +189,51 @@ const animate = () => {
         fruitsObjects.splice(index, 1);
       }
     });
-    if (fruitsObjects.length === 0) {
-      fruit && (fruit.direction = "up");
-      fruit && generateFruits();
-    }
+    // if (fruitsObjects.length === 0) {
+    //   fruit && (fruit.direction = "up");
+    //   fruit && generateFruits();
+    // }
   }
 
-  window.onmousemove = (e) => {
-    var vec = new THREE.Vector3(); // create once and reuse
-    var pos = new THREE.Vector3(); // create once and reuse
+  //   window.onmousemove = (e) => {
+  //     var vec = new THREE.Vector3(); // create once and reuse
+  //     var pos = new THREE.Vector3(); // create once and reuse
 
-    vec.set(
-      (e.clientX / window.innerWidth) * 2 - 1,
-      -(e.clientY / window.innerHeight) * 2 + 1,
-      100
-    );
+  //     vec.set(
+  //       (e.clientX / window.innerWidth) * 2 - 1,
+  //       -(e.clientY / window.innerHeight) * 2 + 1,
+  //       100
+  //     );
 
-    vec.unproject(camera);
-    vec.sub(camera.position).normalize();
-    var distance = -camera.position.z / vec.z;
-    let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
+  //     vec.unproject(camera);
+  //     vec.sub(camera.position).normalize();
+  //     var distance = -camera.position.z / vec.z;
+  //     let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
 
-    trailTarget.position.x = vec.x;
-    trailTarget.position.y = vec.y;
-    trailTarget.position.z = vec.z;
+  //     trailTarget.position.x = vec.x;
+  //     trailTarget.position.y = vec.y;
+  //     trailTarget.position.z = vec.z;
 
-    if (hands) {
-      let test = moveHands(hands, camera, fruitsObjects, e);
+  //     if (hands) {
+  //       let test = moveHands(hands, camera, fruitsObjects, e);
 
-      if (test.includes(true)) {
-        console.log("touched fruit");
-        fruitSliced.play();
-        document.querySelector(".score span").innerText = score++;
-      }
-    }
-  };
-
-  //   if (hands.length) {
-  //     let test = moveHands(hands, camera, fruitsObjects);
-
-  //     if (test.includes(true)) {
-  //       console.log("touched fruit");
-  //       fruitSliced.play();
-  //       document.querySelector(".score span").innerText = score++;
+  //       if (test.includes(true)) {
+  //         console.log("touched fruit");
+  //         fruitSliced.play();
+  //         document.querySelector(".score span").innerText = score++;
+  //       }
   //     }
-  //   }
+  //   };
+
+  if (hands.length) {
+    let test = moveHands(hands, camera, fruitsObjects);
+
+    if (test.includes(true)) {
+      console.log("touched fruit");
+      fruitSliced.play();
+      document.querySelector(".score span").innerText = score++;
+    }
+  }
 
   render();
 };
@@ -240,14 +241,12 @@ const animate = () => {
 window.addEventListener("resize", onWindowResize, false);
 
 document.getElementsByTagName("button")[0].onclick = () => {
-  if (net) {
-    document.getElementsByClassName("intro")[0].style.display = "none";
-    document.getElementsByClassName("score")[0].style.display = "block";
-    generateFruits();
-    detectPoseInRealTime(video, net);
+  document.getElementsByClassName("intro")[0].style.display = "none";
+  document.getElementsByClassName("score")[0].style.display = "block";
+  //   initPoseNetSettings(video);
+  detectPoseInRealTime();
 
-    animate();
-  }
+  animate();
 };
 
 const updateTrailTarget = (function updateTrailTarget() {

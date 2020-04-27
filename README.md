@@ -10,8 +10,9 @@
 - [x] Score
 - [x] Resize browser windows
 - [x] Mobile screen
-- [ ] Debounce collision
-- [ ] Fix loading for performance
 - [x] Hands trails
-- [ ] Add gravity
 - [x] Fix raycasting
+- [ ] Adds bombs
+- [ ] Debounce collision
+- [ ] Fix loading for performance (fix issue with generateFruits)
+- [ ] Add gravity
