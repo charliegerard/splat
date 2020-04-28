@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
 
-    <script src="TrailRenderer.js"></script>
+    <script src="libs/trailRenderer.js"></script>
     <style>
       body {
         font-family: Monospace;
@@ -73,7 +73,7 @@
           tailBlue: 1.0,
           tailAlpha: 0.35,
 
-          trailLength: 100,
+          trailLength: 10,
 
           textureTileFactorS: 10.0,
           textureTileFactorT: 0.8,
@@ -160,7 +160,7 @@
         baseTrailMaterial = THREE.TrailRenderer.createBaseMaterial();
 
         var textureLoader = new THREE.TextureLoader();
-        textureLoader.load("sparkle4.jpg", function (tex) {
+        textureLoader.load("assets/sparkle4.jpg", function (tex) {
           tex.wrapS = THREE.RepeatWrapping;
           tex.wrapT = THREE.RepeatWrapping;
 

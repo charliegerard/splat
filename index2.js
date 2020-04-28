@@ -56,32 +56,17 @@ window.onload = async () => {
   await loadPoseNet();
 
   initScene();
-  initRenderer();
+  //   initRenderer();
   initTrailOptions();
   initLights();
-
-  //   initPoseNetSettings(video);
   loadFruitsModels();
 
   initSceneGeometry(function () {
-    initTrailRenderers();
+    initTrailRenderers(function () {
+      initRenderer();
+    });
     updateStartButton();
   });
-};
-
-const initPoseNetSettings = async (video) => {
-  const imageScaleFactor = guiState.input.imageScaleFactor;
-  const outputStride = +guiState.input.outputStride;
-  const pose = await guiState.net.estimateSinglePose(
-    video,
-    imageScaleFactor,
-    flipHorizontal,
-    outputStride
-  );
-  poses.push(pose);
-
-  minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
-  minPartConfidence = +guiState.singlePoseDetection.minPartConfidence;
 };
 
 const detectPoseInRealTime = async () => {
@@ -243,9 +228,7 @@ window.addEventListener("resize", onWindowResize, false);
 document.getElementsByTagName("button")[0].onclick = () => {
   document.getElementsByClassName("intro")[0].style.display = "none";
   document.getElementsByClassName("score")[0].style.display = "block";
-  //   initPoseNetSettings(video);
   detectPoseInRealTime();
-
   animate();
 };
 

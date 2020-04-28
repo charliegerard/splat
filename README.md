@@ -12,7 +12,7 @@
 - [x] Mobile screen
 - [x] Hands trails
 - [x] Fix raycasting
-- [ ] Adds bombs
+- [ ] Add bombs
 - [ ] Debounce collision
-- [ ] Fix loading for performance (fix issue with generateFruits)
+- [x] Fix loading for performance (fix issue with generateFruits)
 - [ ] Add gravity
