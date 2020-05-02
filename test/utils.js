@@ -1,8 +1,9 @@
 // bomb model https://poly.google.com/view/0mwBvcViY7P
+// apple model https://poly.google.com/view/7AcBNOT0zw5
 
 const fruitsModels = [
   { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
-  { model: "apple/Apple", material: "apple/Apple", name: "apple" },
+  { model: "apple/Apple_01", material: "apple/Apple_01", name: "apple" },
   {
     model: "bomb/bomb",
     material: "bomb/bomb",
@@ -81,7 +82,7 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
             collisionResults[0].object.hit = true;
             console.log("you should come here once");
 
-            collisionResults[0].object.name === "bomb" && losePoint();
+            collisionResults[0].object.name === "bomb" && endGame();
 
             scene.remove(collisionResults[0].object);
             fruitsObjects.splice(collisionResults[0].object.index, 1);
@@ -335,14 +336,14 @@ export const generateFruits = (numFruits) => {
     switch (newFruit.name) {
       case "apple":
         randomXPosition = generateRandomXPosition(
-          -400 * camera.aspect,
-          400 * camera.aspect
+          -190 * camera.aspect,
+          190 * camera.aspect
         );
-        randomYPosition = generateRandomXPosition(-780, -680);
-        newFruit.position.set(randomXPosition, randomYPosition, -300);
+        randomYPosition = generateRandomXPosition(-290, -190);
+        newFruit.position.set(randomXPosition, randomYPosition, 100);
         newFruit.thresholdBottomY = randomYPosition;
-        newFruit.thresholdTopY = 400;
-        newFruit.speed = 11;
+        newFruit.thresholdTopY = 150;
+        newFruit.speed = 6;
         break;
       case "banana":
         randomXPosition = generateRandomXPosition(
@@ -363,7 +364,7 @@ export const generateFruits = (numFruits) => {
         randomYPosition = generateRandomXPosition(-290, -190);
         newFruit.position.set(randomXPosition, randomYPosition, 100);
         newFruit.scale.set(20, 20, 20);
-        newFruit.speed = 4;
+        newFruit.speed = 6;
         newFruit.thresholdBottomY = randomYPosition;
         newFruit.thresholdTopY = 150;
         break;

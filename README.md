@@ -26,20 +26,20 @@
 - [x] 1 fruit max at a time on screen
 - [x] Hide trail dot on load
 - [x] Losing screen
+- [x] If hit bomb, game over
+- [x] Change to another apple
+- [x] Fix speed apple
 
-- [ ] Fix speed apple
 - [ ] Debounce collision
 
 - [ ] Fix hands either left or right
 
 - [ ] Fix hit bomb
 - [x] Redesign home screen
-- [ ] If hit bomb, game over
 
 - [ ] Minify
 - [ ] Split files
 - [ ] Comment?
 - [ ] Deploy on Netlify
-- [ ] Change to another apple
 
 - [x] Fix generateFruits
