@@ -9,9 +9,8 @@ main {
   align-items: center;
   width: 100%;
   height: 100%;
-  background-image: url("./background.png");
-  /* background-image: url("./Wiki-background.jpg"); */
-  /* background-image: url("./test2.jpg"); */
+  /* background-image: url("./background.png"); */
+  background-image: url("./Wiki-background.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   z-index: 12;
@@ -97,7 +96,6 @@ canvas#output {
   font-family: "Bangers", Helvetica;
   letter-spacing: 5px;
   margin: 0;
-
   position: absolute;
   justify-content: center;
   align-items: center;

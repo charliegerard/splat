@@ -21,7 +21,8 @@ const isiOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
 export const isMobile = () => isAndroid() || isiOS();
 
 export const draw3DHand = () => {
-  const geometry = new THREE.BoxGeometry(10, 10, 10);
+  // const geometry = new THREE.BoxGeometry(10, 10, 10);
+  const geometry = new THREE.BoxGeometry(7, 7, 7);
   const material = new THREE.MeshPhongMaterial({
     transparent: true,
     opacity: 0,
@@ -76,8 +77,8 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
 
       if (collisionResults.length > 0) {
         // if (collisionResults[0].distance < 500) {
-        // if (collisionResults[0].distance < 600) {
-        if (collisionResults[0].distance < 800) {
+        if (collisionResults[0].distance < 300) {
+          // if (collisionResults[0].distance < 800) {
           if (collisionResults[0].object.hit === false) {
             collisionResults[0].object.hit = true;
             console.log("you should come here once");
@@ -328,7 +329,6 @@ export const loadPoseNet = async () => {
 };
 
 export const generateFruits = (numFruits) => {
-  console.log("i come back here right");
   for (var i = 0; i < numFruits; i++) {
     const randomFruit = fruits[generateRandomXPosition(0, 2)];
     let newFruit = randomFruit.clone(); // Why are we cloning?
@@ -336,8 +336,8 @@ export const generateFruits = (numFruits) => {
     switch (newFruit.name) {
       case "apple":
         randomXPosition = generateRandomXPosition(
-          -190 * camera.aspect,
-          190 * camera.aspect
+          -120 * camera.aspect,
+          120 * camera.aspect
         );
         randomYPosition = generateRandomXPosition(-290, -190);
         newFruit.position.set(randomXPosition, randomYPosition, 100);

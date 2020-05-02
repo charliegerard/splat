@@ -3,7 +3,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fruit Ninja</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="../styles.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
       rel="stylesheet"
@@ -14,14 +14,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.3/howler.min.js"></script>
   </head>
   <body>
-    <div class="score">🍉 <span>0</span></div>
+    <div class="score">
+      <section class="win">
+        <span>🍉</span>
+        <p class="score-number">0</p>
+      </section>
+      <section class="lose">
+        <p class="score-number">0/3</p>
+        <span>❌</span>
+      </section>
+    </div>
     <video id="video"></video>
+
+    <h1 class="game-over">❌ GAME OVER ❌</h1>
 
     <main>
       <section class="game"></section>
       <section class="intro">
         <h1>FRUIT NINJA 🍉</h1>
-        <p>Play Fruit Ninja with hand movements in the browser!</p>
+        <p>Move your hands to slice some fruits!</p>
+        <p>
+          Allow access to your camera, take a step back from your computer and
+          try to be in a well-lit space!
+        </p>
         <button disabled>Loading...</button>
       </section>
       <canvas id="output"></canvas>
@@ -31,12 +46,11 @@
         bigger screens if you can use a laptop!
       </section>
     </main>
-    <script src="libs/MTLLoader.js"></script>
-    <script src="libs/OBJLoader.js"></script>
-    <script src="libs/trailRenderer.js"></script>
-    <script src="variables.js"></script>
-    <script src="utils.js" type="module"></script>
-    <!-- <script src="index.js" type="module"></script> -->
-    <script src="index2.js" type="module"></script>
+    <script src="../libs/MTLLoader.js"></script>
+    <script src="../libs/OBJLoader.js"></script>
+    <script src="../libs/trailRenderer.js"></script>
+    <script src="../variables.js"></script>
+    <script src="./utils.js" type="module"></script>
+    <script src="./index.js" type="module"></script>
   </body>
 </html>

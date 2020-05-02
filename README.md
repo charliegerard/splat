@@ -29,17 +29,14 @@
 - [x] If hit bomb, game over
 - [x] Change to another apple
 - [x] Fix speed apple
-
-- [ ] Debounce collision
+- [x] Fix hit bomb
+- [x] Fix generateFruits
 
 - [ ] Fix hands either left or right
 
-- [ ] Fix hit bomb
 - [x] Redesign home screen
 
 - [ ] Minify
 - [ ] Split files
 - [ ] Comment?
 - [ ] Deploy on Netlify
-
-- [x] Fix generateFruits
