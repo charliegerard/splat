@@ -1,9 +1,29 @@
 // bomb model https://poly.google.com/view/0mwBvcViY7P
+// bomb model 2 https://poly.google.com/view/6_qmrTyXxHa
+// watermelon https://poly.google.com/view/1exBmBVJHjj
+// strawberry https://poly.google.com/view/caHYgkd5At4
+
+// const fruitsModels = [
+//   { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
+//   { model: "apple/Apple", material: "apple/Apple", name: "apple" },
+// ];
+
+// const fruitsModels = [
+//   { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
+//   {
+//     model: "bomb3/Bomb",
+//     material: "bomb3/Bomb",
+//     name: "bomb",
+//   },
+// ];
 
 const fruitsModels = [
+  {
+    model: "bomb/bomb",
+    material: "bomb/bomb",
+    name: "bomb",
+  },
   { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
-  { model: "apple/Apple", material: "apple/Apple", name: "apple" },
-  // { model: "bomb/bomb", material: "bomb/bomb", name: "bomb" },
 ];
 
 export const generateRandomXPosition = (min, max) => {
@@ -27,7 +47,7 @@ export const isMobile = () => {
 };
 
 export const draw3DHand = () => {
-  const geometry = new THREE.BoxGeometry(50, 50, 50);
+  const geometry = new THREE.BoxGeometry(10, 10, 10);
   const material = new THREE.MeshPhongMaterial({
     transparent: true,
     opacity: 0,
@@ -52,28 +72,14 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
     const distance = -cameraPosition.z / dir.z;
     const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
 
-    // mouse
-    // var vec = new THREE.Vector3(); // create once and reuse
-    // var pos = new THREE.Vector3(); // create once and reuse
-
-    // vec.set(
-    //   (event.clientX / window.innerWidth) * 2 - 1,
-    //   -(event.clientY / window.innerHeight) * 2 + 1,
-    //   100
-    // );
-
-    // vec.unproject(camera);
-    // vec.sub(camera.position).normalize();
-    // var distance = -camera.position.z / vec.z;
-    // let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
-    // end mouse
-
     hand.mesh.position.copy(newPos);
     hand.mesh.position.z = 0;
 
     trailTarget.position.x = handVector.x;
     trailTarget.position.y = handVector.y;
-    trailTarget.position.z = 10;
+    // trailTarget.position.z = 10;
+    trailTarget.position.z = 150;
+    // trailTarget.position.z = 200;
 
     let handGeometry = hand.mesh.geometry;
     var originPoint = hand.mesh.position.clone();
@@ -95,9 +101,16 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
       var collisionResults = ray.intersectObjects(fruitsObjects);
 
       if (collisionResults.length > 0) {
-        if (collisionResults[0].distance < 500) {
+        // if (collisionResults[0].distance < 500) {
+        // if (collisionResults[0].distance < 600) {
+        if (collisionResults[0].distance < 800) {
           if (collisionResults[0].object.hit === false) {
             collisionResults[0].object.hit = true;
+            console.log("you should come here once");
+
+            scene.remove(collisionResults[0].object);
+            fruitsObjects.splice(collisionResults[0].object.index, 1);
+            generateFruits(1);
             return true;
           }
         }
@@ -117,7 +130,9 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
 const resetCamera = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  camera.position.set(0, 200, 400);
+  // camera.position.set(0, 200, 400);
+  camera.position.set(0, 0, cameraZPosition);
+
   camera.lookAt(scene.position);
 };
 
@@ -161,7 +176,7 @@ export const initTrailOptions = () => {
     tailGreen: 1.0,
     tailBlue: 1.0,
     tailAlpha: 0.35,
-    trailLength: 10,
+    trailLength: 7,
     textureTileFactorS: 10.0,
     textureTileFactorT: 0.8,
     dragTexture: false,
@@ -266,8 +281,8 @@ const loadVideo = async () => {
 };
 
 export const initSounds = () => {
-  newFruitSound = new Howl({ src: ["assets/fruit.m4a"] });
-  fruitSliced = new Howl({ src: ["assets/splash.m4a"] });
+  newFruitSound = new Howl({ src: ["../assets/fruit.m4a"] });
+  fruitSliced = new Howl({ src: ["../assets/splash.m4a"] });
 };
 
 export const guiState = {
@@ -305,23 +320,43 @@ export const loadPoseNet = async () => {
   guiState.net = net;
 };
 
-export const generateFruits = () => {
-  for (var i = 0; i < 5; i++) {
+export const generateFruits = (numFruits) => {
+  console.log("i come back here right");
+  for (var i = 0; i < numFruits; i++) {
     const randomFruit = fruits[generateRandomXPosition(0, 1)];
-    const randomXPosition = generateRandomXPosition(-1000, 1000);
-    const randomYPosition = generateRandomXPosition(-1200, -800);
+
+    let randomXPosition = generateRandomXPosition(
+      -1 - cameraZPosition,
+      1 + cameraZPosition
+    );
+    let randomYPosition = generateRandomXPosition(-1200, -800);
+
     let newFruit = randomFruit.clone();
-    newFruit.position.set(randomXPosition, randomYPosition, 100);
+    newFruit.position.set(randomXPosition, randomYPosition, 0);
 
     if (randomFruit.name === "apple") {
       newFruit.position.z = -300;
     }
 
-    speed = 10;
+    if (randomFruit.name === "bomb") {
+      randomXPosition = generateRandomXPosition(-2, 2);
+      randomYPosition = generateRandomXPosition(-5, -2);
+      // newFruit.position.set(randomXPosition, randomYPosition, 100);
+      newFruit.position.set(randomXPosition, randomYPosition, 100);
+      newFruit.scale.set(20, 20, 20);
+
+      // newFruit.position.z = 500;
+      // newFruit.position.x = 1;
+      // newFruit.position.y = 0;
+      // render();
+    }
+
+    speed = randomFruit.name === "bomb" ? 0.01 : 10;
     newFruit.speed = speed;
     newFruit.soundPlayed = false;
     newFruit.direction = "up";
     newFruit.hit = false;
+    newFruit.index = fruitsObjects.length;
     fruitsObjects.push(newFruit);
 
     scene.add(newFruit);
@@ -332,13 +367,13 @@ export const generateFruits = () => {
 export const loadFruitsModels = () => {
   return fruitsModels.map((fruit) => {
     var mtlLoader = new THREE.MTLLoader();
-    mtlLoader.setPath("assets/");
+    mtlLoader.setPath("../assets/");
     mtlLoader.load(`${fruit.material}.mtl`, function (materials) {
       materials.preload();
 
       var objLoader = new THREE.OBJLoader();
       objLoader.setMaterials(materials);
-      objLoader.setPath("assets/");
+      objLoader.setPath("../assets/");
       objLoader.load(`${fruit.model}.obj`, function (object) {
         object.traverse(function (child) {
           if (child instanceof THREE.Mesh) {
@@ -348,8 +383,10 @@ export const loadFruitsModels = () => {
             fruits.push(fruitModel);
           }
         });
+
         if (fruits.length === fruitsModels.length) {
-          generateFruits();
+          // generateFruits(2);
+          generateFruits(2);
         }
       });
     });
@@ -368,11 +405,12 @@ export const initScene = () => {
   camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
-    0.1,
+    1,
     1000
   );
-  camera.position.z = 500;
 
+  cameraZPosition = 300;
+  camera.position.set(0, 0, cameraZPosition);
   scene.add(camera);
   resetCamera();
 };
@@ -392,7 +430,7 @@ export const initTrailRenderers = (callback) => {
   baseTrailMaterial = THREE.TrailRenderer.createBaseMaterial();
 
   var textureLoader = new THREE.TextureLoader();
-  textureLoader.load("assets/sparkle4.jpg", function (tex) {
+  textureLoader.load("../assets/sparkle4.jpg", function (tex) {
     tex.wrapS = THREE.RepeatWrapping;
     tex.wrapT = THREE.RepeatWrapping;
 

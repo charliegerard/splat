@@ -23,6 +23,7 @@ const hands = [];
 let fruit;
 let handMesh;
 let score = 0;
+let scoreDivContent = document.getElementsByClassName("score-number")[0];
 let canvas = document.getElementById("output");
 const flipHorizontal = false;
 canvas.width = window.innerWidth;
@@ -50,55 +51,27 @@ window.onload = async () => {
   lastTrailUpdateTime = performance.now();
   lastTrailResetTime = performance.now();
 
+  // document.getElementsByClassName("intro")[0].style.display = "none";
+
   await loadPoseNet();
   if (video) {
     detectPoseInRealTime(video);
   }
 
   initScene();
-  //   initRenderer();
+  initRenderer();
   initTrailOptions();
   initLights();
   loadFruitsModels();
 
   initSceneGeometry(function () {
-    initTrailRenderers(function () {
-      initRenderer();
-    });
+    initTrailRenderers();
     updateStartButton();
   });
-
-  // test
-  drawTestPlane();
-};
-
-const drawTestPlane = () => {
-  var geometry = new THREE.PlaneGeometry(5, 20, 32);
-  var material = new THREE.MeshBasicMaterial({
-    color: 0xffff00,
-    side: THREE.DoubleSide,
-  });
-  var plane = new THREE.Mesh(geometry, material);
-  plane.position.x = 100;
-  plane.position.y = -10;
-  plane.position.z = -10;
-  scene.add(plane);
 };
 
 const detectPoseInRealTime = async (video) => {
   async function poseDetectionFrame() {
-    if (guiState.changeToArchitecture) {
-      // Important to purge variables and free up GPU memory
-      guiState.net.dispose();
-
-      // Load the PoseNet model weights for either the 0.50, 0.75, 1.00, or 1.01
-      // version
-      guiState.net = await posenet.load(+guiState.changeToArchitecture);
-      guiState.changeToArchitecture = null;
-    }
-
-    // Scale an image down to a certain factor. Too large of an image will slow
-    // down the GPU
     const imageScaleFactor = guiState.input.imageScaleFactor;
     const outputStride = +guiState.input.outputStride;
 
@@ -178,18 +151,14 @@ const animate = () => {
 
   if (fruitsObjects) {
     fruitsObjects.map((fruit, index) => {
-      // fruit.rotation.x += 0.02;
-      // fruit.rotation.y += 0.02;
-
       if (fruit.direction === "up") {
         fruit.position.y += fruit.speed;
       }
       if (
-        fruit.position.y > -700 &&
+        fruit.position.y > -750 &&
         !fruit.soundPlayed &&
         fruit.direction === "up"
       ) {
-        console.log("entered");
         newFruitSound.play();
         fruit.soundPlayed = true;
       }
@@ -200,9 +169,12 @@ const animate = () => {
         fruit.position.y -= fruit.speed;
       }
 
-      if (fruit.position.y < -900) {
+      // console.log(fruit.index);
+
+      if (fruit.position.y < -1200) {
         scene.remove(fruit);
-        fruitsObjects.splice(index, 1);
+        fruitsObjects.splice(fruit.index, 1);
+        generateFruits(1); // generate new fruit?
       }
     });
     // if (fruitsObjects.length === 0) {
@@ -211,43 +183,15 @@ const animate = () => {
     // }
   }
 
-  //   window.onmousemove = (e) => {
-  //     var vec = new THREE.Vector3(); // create once and reuse
-  //     var pos = new THREE.Vector3(); // create once and reuse
-
-  //     vec.set(
-  //       (e.clientX / window.innerWidth) * 2 - 1,
-  //       -(e.clientY / window.innerHeight) * 2 + 1,
-  //       100
-  //     );
-
-  //     vec.unproject(camera);
-  //     vec.sub(camera.position).normalize();
-  //     var distance = -camera.position.z / vec.z;
-  //     let newPos = pos.copy(camera.position).add(vec.multiplyScalar(distance));
-
-  //     trailTarget.position.x = vec.x;
-  //     trailTarget.position.y = vec.y;
-  //     trailTarget.position.z = vec.z;
-
-  //     if (hands) {
-  //       let test = moveHands(hands, camera, fruitsObjects, e);
-
-  //       if (test.includes(true)) {
-  //         console.log("touched fruit");
-  //         fruitSliced.play();
-  //         document.querySelector(".score span").innerText = score++;
-  //       }
-  //     }
-  //   };
-
   if (hands.length) {
     let test = moveHands(hands, camera, fruitsObjects);
 
     if (test.includes(true)) {
-      console.log("touched fruit");
+      score += 1;
+      scoreDivContent.innerHTML = score;
       fruitSliced.play();
-      document.querySelector(".score span").innerText = score++;
+
+      // generateFruits(1);
     }
   }
 

@@ -30,6 +30,10 @@ main {
   font-family: "Bangers", cursive;
 }
 
+.score-number {
+  display: inline-block;
+}
+
 .game {
   position: absolute;
   z-index: 100;

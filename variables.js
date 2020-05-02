@@ -19,3 +19,5 @@ var net, video;
 var speed, fruitModel;
 var fruitsObjects = [];
 var fruits = [];
+var controls;
+var cameraZPosition;
