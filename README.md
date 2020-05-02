@@ -32,10 +32,9 @@
 - [x] Fix hit bomb
 - [x] Fix generateFruits
 - [x] Fix hands either left or right
-
+- [x] Minify
 - [x] Redesign home screen
+- [x] Deploy on Netlify
 
-- [ ] Minify
 - [ ] Split files
 - [ ] Comment?
-- [x] Deploy on Netlify
