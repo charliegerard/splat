@@ -12,7 +12,7 @@ var trailTarget,
   lastTrailResetTime,
   options;
 // Sounds
-var newFruitSound, fruitSliced;
+var newFruitSound, fruitSliced, bombSlicedSound;
 // Video & ML
 var net, video;
 // Fruits objects
@@ -21,3 +21,10 @@ var fruitsObjects = [];
 var fruits = [];
 var controls;
 var cameraZPosition;
+var gameOver = false;
+var frameLoop;
+
+var hitScore = 0;
+var score = 0;
+var randomXPosition;
+var randomYPosition;

@@ -1,6 +1,4 @@
 import {
-  generateRandomSpeed,
-  generateRandomXPosition,
   draw3DHand,
   moveHands,
   initRenderer,
@@ -18,11 +16,10 @@ import {
   initScene,
   initTrailRenderers,
   isMobile,
+  losePoint,
 } from "./utils.js";
 const hands = [];
-let fruit;
 let handMesh;
-let score = 0;
 let scoreDivContent = document.getElementsByClassName("score-number")[0];
 let canvas = document.getElementById("output");
 const flipHorizontal = false;
@@ -50,8 +47,6 @@ window.onload = async () => {
 
   lastTrailUpdateTime = performance.now();
   lastTrailResetTime = performance.now();
-
-  // document.getElementsByClassName("intro")[0].style.display = "none";
 
   await loadPoseNet();
   if (video) {
@@ -144,43 +139,46 @@ const detectPoseInRealTime = async (video) => {
 };
 
 const animate = () => {
-  requestAnimationFrame(animate);
+  frameLoop = requestAnimationFrame(animate);
 
   var time = performance.now();
   trailTarget && updateTrailTarget(time);
 
   if (fruitsObjects) {
     fruitsObjects.map((fruit, index) => {
+      fruit.rotation.x += 0.05;
+      fruit.rotation.y += 0.05;
+      fruit.rotation.z += 0.05;
+
       if (fruit.direction === "up") {
         fruit.position.y += fruit.speed;
       }
       if (
-        fruit.position.y > -750 &&
+        fruit.position.y > fruit.thresholdBottomY &&
         !fruit.soundPlayed &&
         fruit.direction === "up"
       ) {
-        newFruitSound.play();
+        fruit.name === "bomb" ? bombSlicedSound.play() : newFruitSound.play();
         fruit.soundPlayed = true;
       }
-      if (fruit.position.y > 500) {
+
+      if (fruit.position.y > fruit.thresholdTopY) {
         fruit.direction = "down";
       }
       if (fruit.direction === "down") {
         fruit.position.y -= fruit.speed;
       }
 
-      // console.log(fruit.index);
-
-      if (fruit.position.y < -1200) {
+      if (
+        fruit.position.y < fruit.thresholdBottomY &&
+        fruit.direction === "down"
+      ) {
         scene.remove(fruit);
         fruitsObjects.splice(fruit.index, 1);
-        generateFruits(1); // generate new fruit?
+        fruit.name !== "bomb" && losePoint();
+        !gameOver && generateFruits(1); // generate new fruit?
       }
     });
-    // if (fruitsObjects.length === 0) {
-    //   fruit && (fruit.direction = "up");
-    //   fruit && generateFruits();
-    // }
   }
 
   if (hands.length) {

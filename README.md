@@ -19,9 +19,10 @@
 - [x] Fix score
 - [x] If hit bomb, lose 1 life
 - [x] Add score for bombs
+- [x] Change y coordinates if banana or apple, or bomb
+- [x] Play different sound when bomb is on screen
+- [x] Lose if touched bomb 3 times or lose fruit
 
-- [ ] Change y coordinates if banana or apple, or bomb
 - [ ] Debounce collision
-- [ ] Play different sound when bomb is on screen
-- [ ] Lose if touched bomb 3 times or lose fruit
 - [ ] Losing screen
+- [ ] Fix generateFruits

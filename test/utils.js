@@ -1,6 +1,4 @@
 // bomb model https://poly.google.com/view/0mwBvcViY7P
-// watermelon https://poly.google.com/view/1exBmBVJHjj
-// strawberry https://poly.google.com/view/caHYgkd5At4
 
 const fruitsModels = [
   { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
@@ -12,27 +10,14 @@ const fruitsModels = [
   },
 ];
 
-let hitScore = 0;
+export const generateRandomXPosition = (min, max) =>
+  Math.round(Math.random() * (max - min)) + min;
 
-export const generateRandomXPosition = (min, max) => {
-  return Math.round(Math.random() * (max - min)) + min;
-};
+const isAndroid = () => /Android/i.test(navigator.userAgent);
 
-export const generateRandomSpeed = (min, max) => {
-  return Math.random() * (max - min) + min;
-};
+const isiOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-const isAndroid = () => {
-  return /Android/i.test(navigator.userAgent);
-};
-
-const isiOS = () => {
-  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-};
-
-export const isMobile = () => {
-  return isAndroid() || isiOS();
-};
+export const isMobile = () => isAndroid() || isiOS();
 
 export const draw3DHand = () => {
   const geometry = new THREE.BoxGeometry(10, 10, 10);
@@ -96,11 +81,12 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
             collisionResults[0].object.hit = true;
             console.log("you should come here once");
 
-            collisionResults[0].object.name === "bomb" && hitBomb();
+            collisionResults[0].object.name === "bomb" && losePoint();
 
             scene.remove(collisionResults[0].object);
             fruitsObjects.splice(collisionResults[0].object.index, 1);
-            generateFruits(1);
+
+            !gameOver && generateFruits(1);
             return true;
           }
         }
@@ -117,12 +103,20 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
   });
 };
 
-const hitBomb = () => {
-  // hitScore
-  hitScore += 1;
-  document.getElementsByClassName(
-    "score-number"
-  )[1].innerHTML = `${hitScore}/3`;
+export const losePoint = () => {
+  if (hitScore >= 3) {
+    // restart button
+    // generate fruits
+    gameOver = true;
+    hitScore = 0;
+    score = 0;
+    cancelAnimationFrame(frameLoop);
+  } else {
+    hitScore += 1;
+    document.getElementsByClassName(
+      "score-number"
+    )[1].innerHTML = `${hitScore}/3`;
+  }
 };
 
 const resetCamera = () => {
@@ -132,12 +126,14 @@ const resetCamera = () => {
   camera.position.set(0, 0, cameraZPosition);
 
   camera.lookAt(scene.position);
+  renderer.setSize(window.innerWidth, window.innerHeight);
 };
 
 export const initRenderer = () => {
   renderer = new THREE.WebGLRenderer({
     alpha: true,
   });
+  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   let rendererContainer = document.getElementsByClassName("game")[0];
   rendererContainer.appendChild(renderer.domElement);
@@ -155,9 +151,7 @@ export const initLights = () => {
   scene.add(pointLight);
 };
 
-export const render = () => {
-  renderer.render(scene, camera);
-};
+export const render = () => renderer.render(scene, camera);
 
 export const updateStartButton = () => {
   document.getElementsByTagName("button")[0].innerText = "Start";
@@ -281,6 +275,7 @@ const loadVideo = async () => {
 export const initSounds = () => {
   newFruitSound = new Howl({ src: ["../assets/fruit.m4a"] });
   fruitSliced = new Howl({ src: ["../assets/splash.m4a"] });
+  bombSlicedSound = new Howl({ src: ["../assets/bomb-sound.m4a"] });
 };
 
 export const guiState = {
@@ -319,34 +314,51 @@ export const loadPoseNet = async () => {
 };
 
 export const generateFruits = (numFruits) => {
-  console.log("i come back here right", numFruits);
+  console.log("i come back here right");
   for (var i = 0; i < numFruits; i++) {
     const randomFruit = fruits[generateRandomXPosition(0, 2)];
+    let newFruit = randomFruit.clone(); // Why are we cloning?
 
-    let randomXPosition = generateRandomXPosition(
-      -1 - cameraZPosition,
-      1 + cameraZPosition
-    );
-    let randomYPosition = generateRandomXPosition(-1200, -800);
+    switch (newFruit.name) {
+      case "apple":
+        randomXPosition = generateRandomXPosition(
+          -400 * camera.aspect,
+          400 * camera.aspect
+        );
+        randomYPosition = generateRandomXPosition(-720, -680);
+        newFruit.position.set(randomXPosition, randomYPosition, -300);
+        newFruit.thresholdBottomY = randomYPosition;
+        newFruit.thresholdTopY = 180 * camera.aspect;
+        newFruit.speed = 6;
+        break;
+      case "banana":
+        randomXPosition = generateRandomXPosition(
+          -200 * camera.aspect,
+          200 * camera.aspect
+        );
+        randomYPosition = generateRandomXPosition(-300, -270);
+        newFruit.position.set(randomXPosition, randomYPosition, 0);
+        newFruit.thresholdBottomY = randomYPosition;
+        newFruit.thresholdTopY = 80 * camera.aspect;
+        newFruit.speed = 6;
+        break;
+      case "bomb":
+        randomXPosition = generateRandomXPosition(
+          -110 * camera.aspect,
+          110 * camera.aspect
+        );
+        randomYPosition = generateRandomXPosition(-220, -190);
+        newFruit.position.set(randomXPosition, randomYPosition, 100);
 
-    let newFruit = randomFruit.clone();
-    newFruit.position.set(randomXPosition, randomYPosition, 0);
-
-    if (randomFruit.name === "apple") {
-      newFruit.position.z = -300;
+        newFruit.scale.set(20, 20, 20);
+        newFruit.speed = 4;
+        newFruit.thresholdBottomY = randomYPosition;
+        newFruit.thresholdTopY = 60 * camera.aspect;
+        break;
+      default:
+        break;
     }
 
-    if (randomFruit.name === "bomb") {
-      console.log("here");
-      randomXPosition = generateRandomXPosition(-2, 2);
-      randomYPosition = generateRandomXPosition(-5, -2);
-      // newFruit.position.set(randomXPosition, randomYPosition, 100);
-      newFruit.position.set(randomXPosition, randomYPosition, 100);
-      newFruit.scale.set(20, 20, 20);
-    }
-
-    speed = randomFruit.name === "bomb" ? 0.01 : 10;
-    newFruit.speed = speed;
     newFruit.soundPlayed = false;
     newFruit.direction = "up";
     newFruit.hit = false;
@@ -379,7 +391,7 @@ export const loadFruitsModels = () => {
         });
 
         if (fruits.length === fruitsModels.length) {
-          generateFruits(3);
+          generateFruits(fruits.length);
         }
       });
     });
@@ -389,8 +401,8 @@ export const loadFruitsModels = () => {
 };
 
 export const onWindowResize = () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
   resetCamera();
+  render();
 };
 
 export const initScene = () => {
@@ -405,7 +417,6 @@ export const initScene = () => {
   cameraZPosition = 300;
   camera.position.set(0, 0, cameraZPosition);
   scene.add(camera);
-  resetCamera();
 };
 
 export const initSceneGeometry = (onFinished) => {
@@ -442,8 +453,4 @@ export const initTrailRenderers = (callback) => {
     trailMaterial = baseTrailMaterial;
     initializeTrail();
   }
-};
-
-export const getTrailTarget = () => {
-  return trailTarget;
 };
