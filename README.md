@@ -38,4 +38,4 @@
 - [ ] Minify
 - [ ] Split files
 - [ ] Comment?
-- [ ] Deploy on Netlify
+- [x] Deploy on Netlify
