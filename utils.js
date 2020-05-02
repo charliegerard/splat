@@ -52,7 +52,6 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
 
     trailTarget.position.x = handVector.x;
     trailTarget.position.y = handVector.y;
-    // trailTarget.position.z = 10;
     trailTarget.position.z = 150;
     // trailTarget.position.z = 200;
 
@@ -81,25 +80,14 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
           // if (collisionResults[0].distance < 800) {
           if (collisionResults[0].object.hit === false) {
             collisionResults[0].object.hit = true;
-            console.log("you should come here once");
-
             collisionResults[0].object.name === "bomb" && endGame();
-
             scene.remove(collisionResults[0].object);
             fruitsObjects.splice(collisionResults[0].object.index, 1);
-
             !gameOver && generateFruits(1);
             return true;
           }
         }
       }
-
-      // if (
-      //   collisionResults.length > 0 &&
-      //   collisionResults[0].distance < directionVector.length()
-      // ) {
-      //   console.log("collisionnnn");
-      // }
     }
     return false;
   });
@@ -125,11 +113,6 @@ const endGame = () => {
     scene.remove(object);
     fruitsObjects = [];
   });
-};
-
-const resetGame = () => {
-  // restart button
-  // generate fruits
 };
 
 const resetCamera = () => {

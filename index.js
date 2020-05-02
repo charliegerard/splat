@@ -156,20 +156,18 @@ const animate = () => {
         scene.remove(fruit);
         fruitsObjects.splice(fruit.index, 1);
         fruit.name !== "bomb" && losePoint();
-        !gameOver && generateFruits(1); // generate new fruit?
+        !gameOver && generateFruits(1);
       }
     });
   }
 
   if (hands.length) {
-    let test = moveHands(hands, camera, fruitsObjects);
-
-    if (test.includes(true)) {
+    let hasCollided = moveHands(hands, camera, fruitsObjects);
+    //shouldn't be an array.
+    if (hasCollided.includes(true)) {
       score += 1;
       scoreDivContent.innerHTML = score;
       fruitSliced.play();
-
-      // generateFruits(1);
     }
   }
 

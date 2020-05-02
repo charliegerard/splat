@@ -38,3 +38,9 @@
 
 - [ ] Split files
 - [ ] Comment?
+
+# Splat
+
+A JavaScript motion-controlled 3D game built with PoseNet and Three.js
+
+## Demo
