@@ -1,30 +1,18 @@
 // bomb model https://poly.google.com/view/0mwBvcViY7P
-// bomb model 2 https://poly.google.com/view/6_qmrTyXxHa
 // watermelon https://poly.google.com/view/1exBmBVJHjj
 // strawberry https://poly.google.com/view/caHYgkd5At4
 
-// const fruitsModels = [
-//   { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
-//   { model: "apple/Apple", material: "apple/Apple", name: "apple" },
-// ];
-
-// const fruitsModels = [
-//   { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
-//   {
-//     model: "bomb3/Bomb",
-//     material: "bomb3/Bomb",
-//     name: "bomb",
-//   },
-// ];
-
 const fruitsModels = [
+  { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
+  { model: "apple/Apple", material: "apple/Apple", name: "apple" },
   {
     model: "bomb/bomb",
     material: "bomb/bomb",
     name: "bomb",
   },
-  { model: "banana/Banana_01", material: "banana/Banana_01", name: "banana" },
 ];
+
+let hitScore = 0;
 
 export const generateRandomXPosition = (min, max) => {
   return Math.round(Math.random() * (max - min)) + min;
@@ -108,6 +96,8 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
             collisionResults[0].object.hit = true;
             console.log("you should come here once");
 
+            collisionResults[0].object.name === "bomb" && hitBomb();
+
             scene.remove(collisionResults[0].object);
             fruitsObjects.splice(collisionResults[0].object.index, 1);
             generateFruits(1);
@@ -125,6 +115,14 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
     }
     return false;
   });
+};
+
+const hitBomb = () => {
+  // hitScore
+  hitScore += 1;
+  document.getElementsByClassName(
+    "score-number"
+  )[1].innerHTML = `${hitScore}/3`;
 };
 
 const resetCamera = () => {
@@ -321,9 +319,9 @@ export const loadPoseNet = async () => {
 };
 
 export const generateFruits = (numFruits) => {
-  console.log("i come back here right");
+  console.log("i come back here right", numFruits);
   for (var i = 0; i < numFruits; i++) {
-    const randomFruit = fruits[generateRandomXPosition(0, 1)];
+    const randomFruit = fruits[generateRandomXPosition(0, 2)];
 
     let randomXPosition = generateRandomXPosition(
       -1 - cameraZPosition,
@@ -339,16 +337,12 @@ export const generateFruits = (numFruits) => {
     }
 
     if (randomFruit.name === "bomb") {
+      console.log("here");
       randomXPosition = generateRandomXPosition(-2, 2);
       randomYPosition = generateRandomXPosition(-5, -2);
       // newFruit.position.set(randomXPosition, randomYPosition, 100);
       newFruit.position.set(randomXPosition, randomYPosition, 100);
       newFruit.scale.set(20, 20, 20);
-
-      // newFruit.position.z = 500;
-      // newFruit.position.x = 1;
-      // newFruit.position.y = 0;
-      // render();
     }
 
     speed = randomFruit.name === "bomb" ? 0.01 : 10;
@@ -385,8 +379,7 @@ export const loadFruitsModels = () => {
         });
 
         if (fruits.length === fruitsModels.length) {
-          // generateFruits(2);
-          generateFruits(2);
+          generateFruits(3);
         }
       });
     });

@@ -26,12 +26,19 @@ main {
   color: white;
   z-index: 100;
   display: none;
+  width: 100%;
   /* font-family: Helvetica; */
   font-family: "Bangers", cursive;
 }
 
 .score-number {
   display: inline-block;
+}
+
+.lose {
+  right: 1em;
+  position: absolute;
+  top: 0;
 }
 
 .game {

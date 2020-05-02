@@ -12,17 +12,16 @@
 - [x] Mobile screen
 - [x] Hands trails
 - [x] Fix raycasting
-- [ ] Add bombs
-- [ ] Debounce collision
+- [x] Add bombs
 - [x] Fix loading for performance (fix issue with generateFruits)
 - [x] Generate new fruits if off screen
 - [x] Generate new fruits if 1 touched
 - [x] Fix score
+- [x] If hit bomb, lose 1 life
+- [x] Add score for bombs
 
-* [ ] Play different sound when bomb is on screen
-* [ ] If hit bomb, lose 1 life
-* [ ] Change y coordinates if banana or apple
-* [ ] Add score for bombs
-* [ ] Lose if touched bomb 3 times or lose fruit
-
-- [ ] Add gravity
+- [ ] Change y coordinates if banana or apple, or bomb
+- [ ] Debounce collision
+- [ ] Play different sound when bomb is on screen
+- [ ] Lose if touched bomb 3 times or lose fruit
+- [ ] Losing screen
