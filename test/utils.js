@@ -104,19 +104,30 @@ export const moveHands = (hands, camera, fruitsObjects, event) => {
 };
 
 export const losePoint = () => {
-  if (hitScore >= 3) {
-    // restart button
-    // generate fruits
-    gameOver = true;
-    hitScore = 0;
-    score = 0;
-    cancelAnimationFrame(frameLoop);
-  } else {
-    hitScore += 1;
-    document.getElementsByClassName(
-      "score-number"
-    )[1].innerHTML = `${hitScore}/3`;
-  }
+  hitScore += 1;
+  document.getElementsByClassName(
+    "score-number"
+  )[1].innerHTML = `${hitScore}/3`;
+
+  hitScore === 3 && endGame();
+};
+
+const endGame = () => {
+  gameOver = true;
+  hitScore = 0;
+  score = 0;
+  document.getElementsByClassName("game-over")[0].style.display = "flex";
+  cancelAnimationFrame(frameLoop);
+  // remove all objects from scene.
+  fruitsObjects.map((object) => {
+    scene.remove(object);
+    fruitsObjects = [];
+  });
+};
+
+const resetGame = () => {
+  // restart button
+  // generate fruits
 };
 
 const resetCamera = () => {
@@ -151,7 +162,7 @@ export const initLights = () => {
   scene.add(pointLight);
 };
 
-export const render = () => renderer.render(scene, camera);
+export const render = () => renderer && renderer.render(scene, camera);
 
 export const updateStartButton = () => {
   document.getElementsByTagName("button")[0].innerText = "Start";
@@ -178,13 +189,15 @@ export const initTrailOptions = () => {
 
 const initTrailTarget = () => {
   var geometry = new THREE.CircleGeometry(5, 32);
-  var material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  var material = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+  });
   trailTarget = new THREE.Mesh(geometry, material);
   trailTarget.position.set(0, 0, 0);
   trailTarget.scale.multiplyScalar(1);
   trailTarget.receiveShadow = false;
-
-  scene.add(trailTarget);
+  // Removing to avoid seeing white dot on home screen
+  // scene.add(trailTarget);
 };
 
 const updateTrailColors = () => {
@@ -325,21 +338,21 @@ export const generateFruits = (numFruits) => {
           -400 * camera.aspect,
           400 * camera.aspect
         );
-        randomYPosition = generateRandomXPosition(-720, -680);
+        randomYPosition = generateRandomXPosition(-780, -680);
         newFruit.position.set(randomXPosition, randomYPosition, -300);
         newFruit.thresholdBottomY = randomYPosition;
-        newFruit.thresholdTopY = 180 * camera.aspect;
-        newFruit.speed = 6;
+        newFruit.thresholdTopY = 400;
+        newFruit.speed = 11;
         break;
       case "banana":
         randomXPosition = generateRandomXPosition(
           -200 * camera.aspect,
           200 * camera.aspect
         );
-        randomYPosition = generateRandomXPosition(-300, -270);
+        randomYPosition = generateRandomXPosition(-370, -270);
         newFruit.position.set(randomXPosition, randomYPosition, 0);
         newFruit.thresholdBottomY = randomYPosition;
-        newFruit.thresholdTopY = 80 * camera.aspect;
+        newFruit.thresholdTopY = 200;
         newFruit.speed = 6;
         break;
       case "bomb":
@@ -347,13 +360,12 @@ export const generateFruits = (numFruits) => {
           -110 * camera.aspect,
           110 * camera.aspect
         );
-        randomYPosition = generateRandomXPosition(-220, -190);
+        randomYPosition = generateRandomXPosition(-290, -190);
         newFruit.position.set(randomXPosition, randomYPosition, 100);
-
         newFruit.scale.set(20, 20, 20);
         newFruit.speed = 4;
         newFruit.thresholdBottomY = randomYPosition;
-        newFruit.thresholdTopY = 60 * camera.aspect;
+        newFruit.thresholdTopY = 150;
         break;
       default:
         break;
@@ -391,7 +403,7 @@ export const loadFruitsModels = () => {
         });
 
         if (fruits.length === fruitsModels.length) {
-          generateFruits(fruits.length);
+          generateFruits(1);
         }
       });
     });
@@ -401,7 +413,7 @@ export const loadFruitsModels = () => {
 };
 
 export const onWindowResize = () => {
-  resetCamera();
+  camera && resetCamera();
   render();
 };
 

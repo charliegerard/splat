@@ -146,9 +146,8 @@ const animate = () => {
 
   if (fruitsObjects) {
     fruitsObjects.map((fruit, index) => {
-      fruit.rotation.x += 0.05;
-      fruit.rotation.y += 0.05;
-      fruit.rotation.z += 0.05;
+      fruit.rotation.x += 0.1;
+      fruit.rotation.y += 0.1;
 
       if (fruit.direction === "up") {
         fruit.position.y += fruit.speed;
@@ -201,6 +200,7 @@ window.addEventListener("resize", onWindowResize, false);
 document.getElementsByTagName("button")[0].onclick = () => {
   document.getElementsByClassName("intro")[0].style.display = "none";
   document.getElementsByClassName("score")[0].style.display = "block";
+  scene.add(trailTarget);
   animate();
 };
 

@@ -14,7 +14,6 @@ main {
   /* background-image: url("./test2.jpg"); */
   background-repeat: no-repeat;
   background-size: cover;
-
   z-index: 12;
 }
 
@@ -27,12 +26,13 @@ main {
   z-index: 100;
   display: none;
   width: 100%;
-  /* font-family: Helvetica; */
+  margin: 0;
   font-family: "Bangers", cursive;
 }
 
 .score-number {
   display: inline-block;
+  margin: 0;
 }
 
 .lose {
@@ -71,30 +71,60 @@ canvas#output {
 }
 
 .intro {
-  font-family: Helvetica;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
   display: block;
   z-index: 130;
   text-align: center;
+  width: 60%;
 }
 
 .intro h1 {
-  font-size: 7em;
+  font-size: 6em;
   /* color: rgb(161, 110, 182); */
   color: yellow;
-  text-shadow: 3px 3px black;
-  font-family: "Bangers", cursive;
+  text-shadow: 3px 3px 3px black;
+  font-family: "Bangers", Helvetica;
   letter-spacing: 5px;
+  margin: 0;
+}
+
+.game-over {
+  display: none;
+  font-size: 6em;
+  color: white;
+  text-shadow: 3px 3px 3px black;
+  font-family: "Bangers", Helvetica;
+  letter-spacing: 5px;
+  margin: 0;
+
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
 }
 
 .intro p {
-  font-size: 1.5em;
+  font-size: 1.4em;
   color: white;
-  margin-bottom: 3em;
+  text-shadow: 1px 1px 3px black;
 }
+
+.intro p:last-of-type {
+  margin-bottom: 2em;
+}
+
 .intro button {
-  padding: 0.5em 1em;
-  font-size: 1.5em;
+  padding: 0.4em 1em;
+  font-size: 1.3em;
   border-radius: 3px;
+  border: none;
+}
+
+.intro button:hover {
+  cursor: pointer;
 }
 
 .mobile-intro {

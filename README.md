@@ -22,7 +22,24 @@
 - [x] Change y coordinates if banana or apple, or bomb
 - [x] Play different sound when bomb is on screen
 - [x] Lose if touched bomb 3 times or lose fruit
+- [x] Fix top position
+- [x] 1 fruit max at a time on screen
+- [x] Hide trail dot on load
+- [x] Losing screen
 
+- [ ] Fix speed apple
 - [ ] Debounce collision
-- [ ] Losing screen
-- [ ] Fix generateFruits
+
+- [ ] Fix hands either left or right
+
+- [ ] Fix hit bomb
+- [x] Redesign home screen
+- [ ] If hit bomb, game over
+
+- [ ] Minify
+- [ ] Split files
+- [ ] Comment?
+- [ ] Deploy on Netlify
+- [ ] Change to another apple
+
+- [x] Fix generateFruits
