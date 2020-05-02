@@ -36,11 +36,19 @@
 - [x] Redesign home screen
 - [x] Deploy on Netlify
 
+- [ ] Turn hands array into single hand
 - [ ] Split files
 - [ ] Comment?
 
 # Splat
 
-A JavaScript motion-controlled 3D game built with PoseNet and Three.js
+Fruit Ninja-ish JavaScript motion-controlled 3D game, built with PoseNet and Three.js.
 
 ## Demo
+
+## Tech stack
+
+- HTML / CSS / JS
+- Three.js
+- PoseNet
+- TrailRenderer.js

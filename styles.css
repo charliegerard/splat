@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  color: white;
 }
 
 main {
@@ -20,7 +21,6 @@ main {
   top: 10px;
   left: 10px;
   font-size: 2em;
-  color: white;
   z-index: 100;
   display: none;
   width: 100%;
@@ -79,7 +79,6 @@ canvas#output {
 
 .intro h1 {
   font-size: 6em;
-  /* color: rgb(161, 110, 182); */
   color: yellow;
   text-shadow: 3px 3px 3px black;
   font-family: "Bangers", Helvetica;
@@ -90,7 +89,6 @@ canvas#output {
 .game-over {
   display: none;
   font-size: 6em;
-  color: white;
   text-shadow: 3px 3px 3px black;
   font-family: "Bangers", Helvetica;
   letter-spacing: 5px;
@@ -105,7 +103,6 @@ canvas#output {
 
 .intro p {
   font-size: 1.4em;
-  color: white;
   text-shadow: 1px 1px 3px black;
 }
 
@@ -126,7 +123,6 @@ canvas#output {
 
 .mobile-intro {
   display: none;
-  color: white;
   font-family: Helvetica;
   width: 90%;
   text-align: center;
