@@ -92,43 +92,25 @@ const detectPoseInRealTime = async (video) => {
         if (guiState.output.showPoints) {
           const leftWrist = keypoints.find((k) => k.part === "leftWrist");
           const rightWrist = keypoints.find((k) => k.part === "rightWrist");
-          if (leftWrist) {
-            const hasLeftHand = hands.find((hand) => hand.name === "leftHand");
-            if (!hasLeftHand) {
+
+          if (hands.length === 0) {
+            if (rightWrist || leftWrist) {
               handMesh = draw3DHand();
               hands.push({
                 mesh: handMesh,
-                coordinates: leftWrist.position,
-                name: "leftHand",
+                coordinates: rightWrist
+                  ? rightWrist.position
+                  : leftWrist.position,
+                name: rightWrist ? "rightHand" : "leftHand",
               });
               scene.add(handMesh);
             }
-            const leftHandIndex = hands.findIndex(
-              (hand) => hand.name === "leftHand"
-            );
-            leftHandIndex !== -1 &&
-              (hands[leftHandIndex].coordinates = leftWrist.position);
+          } else {
+            hands[0].coordinates =
+              hands[0].name === "rightHand"
+                ? rightWrist.position
+                : leftWrist.position;
           }
-          //   if (rightWrist) {
-          //     const hasRightHand = hands.find(
-          //       (hand) => hand.name === "rightHand"
-          //     );
-          //     if (!hasRightHand) {
-          //       handMesh = draw3DHand();
-          //       hands.push({
-          //         mesh: handMesh,
-          //         coordinates: rightWrist.position,
-          //         name: "rightHand",
-          //       });
-          //       scene.add(handMesh);
-          //     }
-          //     const rightHandIndex = hands.findIndex(
-          //       (hand) => hand.name === "rightHand"
-          //     );
-          //     rightHandIndex !== -1 &&
-          //       (hands[rightHandIndex].coordinates = rightWrist.position);
-          //   }
-          //   moveHands(hands, camera, fruitsObjects);
         }
       }
     });
