@@ -31,8 +31,7 @@
 - [x] Fix speed apple
 - [x] Fix hit bomb
 - [x] Fix generateFruits
-
-- [ ] Fix hands either left or right
+- [x] Fix hands either left or right
 
 - [x] Redesign home screen
 
