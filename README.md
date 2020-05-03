@@ -36,8 +36,7 @@
 - [x] Redesign home screen
 - [x] Deploy on Netlify
 - [x] Turn hands array into single hand
-
-- [ ] Split files
+- [x] Split files
 - [ ] Comment?
 
 # Splat
