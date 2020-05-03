@@ -62,3 +62,10 @@ document.getElementsByTagName("button")[0].onclick = () => {
   backgroundNoise.play();
   animate();
 };
+
+console.log(
+  "%c%s",
+  "color: white; background: purple; font-size: 18px;",
+  " Made by Charlie Gerard 🎉",
+  "https://twitter.com/devdevcharlie"
+);
