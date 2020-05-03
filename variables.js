@@ -17,14 +17,20 @@ var newFruitSound, fruitSliced, bombSlicedSound;
 var net, video;
 // Fruits objects
 var speed, fruitModel;
-var fruitsObjects = [];
-var fruits = [];
+const fruitsObjects = [];
+const fruits = [];
 var controls;
 var cameraZPosition;
-var gameOver = false;
+const gameOver = false;
 var frameLoop;
 
-var hitScore = 0;
-var score = 0;
+const hitScore = 0;
+const score = 0;
 var randomXPosition;
 var randomYPosition;
+
+let hand;
+let handMesh;
+const scoreDivContent = document.getElementsByClassName("score-number")[0];
+const canvas = document.getElementById("output");
+const flipHorizontal = false;

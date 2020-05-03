@@ -18,11 +18,7 @@ import {
   isMobile,
   losePoint,
 } from "./utils.js";
-let hand;
-let handMesh;
-let scoreDivContent = document.getElementsByClassName("score-number")[0];
-let canvas = document.getElementById("output");
-const flipHorizontal = false;
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -126,7 +122,7 @@ const animate = () => {
   trailTarget && updateTrailTarget(time);
 
   if (fruitsObjects) {
-    fruitsObjects.map((fruit, index) => {
+    fruitsObjects.map((fruit) => {
       fruit.rotation.x += 0.1;
       fruit.rotation.y += 0.1;
 

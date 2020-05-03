@@ -15,9 +15,19 @@ const commonFruitProperties = {
   soundPlayed: false,
   direction: "up",
   hit: false,
+  speed: 6,
+  banana: {
+    thresholdTopY: 200,
+  },
+  bomb: {
+    thresholdTopY: 150,
+  },
+  apple: {
+    thresholdTopY: 150,
+  },
 };
 
-export const generateRandomXPosition = (min, max) =>
+export const generateRandomPosition = (min, max) =>
   Math.round(Math.random() * (max - min)) + min;
 
 const isAndroid = () => /Android/i.test(navigator.userAgent);
@@ -290,61 +300,54 @@ export const loadPoseNet = async () => {
   });
 
   video = await loadVideo();
-
   guiState.net = net;
 };
 
 export const generateFruits = (numFruits) => {
   for (var i = 0; i < numFruits; i++) {
-    const randomFruit = fruits[generateRandomXPosition(0, 2)];
+    const randomFruit = fruits[generateRandomPosition(0, 2)];
     let newFruit = randomFruit.clone(); // Why are we cloning?
 
     switch (newFruit.name) {
       case "apple":
-        randomXPosition = generateRandomXPosition(
+        randomXPosition = generateRandomPosition(
           -120 * camera.aspect,
           120 * camera.aspect
         );
-        randomYPosition = generateRandomXPosition(-290, -190);
+        randomYPosition = generateRandomPosition(-290, -190);
         newFruit.position.set(randomXPosition, randomYPosition, 100);
         newFruit.thresholdBottomY = randomYPosition;
-        newFruit.thresholdTopY = 150;
-        newFruit.speed = 6;
         break;
       case "banana":
-        randomXPosition = generateRandomXPosition(
+        randomXPosition = generateRandomPosition(
           -200 * camera.aspect,
           200 * camera.aspect
         );
-        randomYPosition = generateRandomXPosition(-370, -270);
+        randomYPosition = generateRandomPosition(-370, -270);
         newFruit.position.set(randomXPosition, randomYPosition, 0);
         newFruit.thresholdBottomY = randomYPosition;
-        newFruit.thresholdTopY = 200;
-        newFruit.speed = 6;
         break;
       case "bomb":
-        randomXPosition = generateRandomXPosition(
+        randomXPosition = generateRandomPosition(
           -110 * camera.aspect,
           110 * camera.aspect
         );
-        randomYPosition = generateRandomXPosition(-290, -190);
+        randomYPosition = generateRandomPosition(-290, -190);
         newFruit.position.set(randomXPosition, randomYPosition, 100);
         newFruit.scale.set(20, 20, 20);
-        newFruit.speed = 6;
         newFruit.thresholdBottomY = randomYPosition;
-        newFruit.thresholdTopY = 150;
         break;
       default:
         break;
     }
 
     newFruit.index = fruitsObjects.length;
-    newFruit.soundPlayed = false;
-    newFruit.direction = "up";
-    newFruit.hit = false;
+    newFruit.thresholdTopY = commonFruitProperties[newFruit.name].thresholdTopY;
+    newFruit.soundPlayed = commonFruitProperties.soundPlayed;
+    newFruit.direction = commonFruitProperties.direction;
+    newFruit.hit = commonFruitProperties.hit;
+    newFruit.speed = commonFruitProperties.speed;
 
-    const completeFruit = { ...newFruit, ...commonFruitProperties };
-    // console.log(completeFruit);
     fruitsObjects.push(newFruit);
 
     scene.add(newFruit);
@@ -405,9 +408,7 @@ export const initSceneGeometry = (onFinished) => {
   initTrailHeadGeometries();
   initTrailTarget();
 
-  if (onFinished) {
-    onFinished();
-  }
+  onFinished && onFinished();
 };
 
 export const initTrailRenderers = (callback) => {
@@ -424,15 +425,12 @@ export const initTrailRenderers = (callback) => {
     texturedTrailMaterial.uniforms.texture.value = tex;
 
     continueInitialization();
-
-    if (callback) {
-      callback();
-    }
+    callback && callback();
   });
 
-  function continueInitialization() {
+  const continueInitialization = () => {
     trailHeadGeometry = circlePoints;
     trailMaterial = baseTrailMaterial;
     initializeTrail();
-  }
+  };
 };
