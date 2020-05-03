@@ -11,6 +11,12 @@ const fruitsModels = [
   },
 ];
 
+const commonFruitProperties = {
+  soundPlayed: false,
+  direction: "up",
+  hit: false,
+};
+
 export const generateRandomXPosition = (min, max) =>
   Math.round(Math.random() * (max - min)) + min;
 
@@ -21,7 +27,6 @@ const isiOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
 export const isMobile = () => isAndroid() || isiOS();
 
 export const draw3DHand = () => {
-  // const geometry = new THREE.BoxGeometry(10, 10, 10);
   const geometry = new THREE.BoxGeometry(7, 7, 7);
   const material = new THREE.MeshPhongMaterial({
     transparent: true,
@@ -32,65 +37,58 @@ export const draw3DHand = () => {
   return mesh;
 };
 
-export const moveHands = (hands, camera, fruitsObjects, event) => {
-  return hands.map((hand) => {
-    const handVector = new THREE.Vector3();
-    // the x coordinates seem to be flipped so i'm subtracting them from window innerWidth
-    handVector.x =
-      ((window.innerWidth - hand.coordinates.x) / window.innerWidth) * 2 - 1;
-    handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
-    handVector.z = 0;
+export const animateHandTrail = (hand, camera, fruitsObjects) => {
+  const handVector = new THREE.Vector3();
+  // the x coordinates seem to be flipped so i'm subtracting them from window innerWidth
+  handVector.x =
+    ((window.innerWidth - hand.coordinates.x) / window.innerWidth) * 2 - 1;
+  handVector.y = -(hand.coordinates.y / window.innerHeight) * 2 + 1;
+  handVector.z = 0;
 
-    handVector.unproject(camera);
-    const cameraPosition = camera.position;
-    const dir = handVector.sub(cameraPosition).normalize();
-    const distance = -cameraPosition.z / dir.z;
-    const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
+  handVector.unproject(camera);
+  const cameraPosition = camera.position;
+  const dir = handVector.sub(cameraPosition).normalize();
+  const distance = -cameraPosition.z / dir.z;
+  const newPos = cameraPosition.clone().add(dir.multiplyScalar(distance));
 
-    hand.mesh.position.copy(newPos);
-    hand.mesh.position.z = 0;
+  hand.mesh.position.copy(newPos);
+  hand.mesh.position.z = 0;
 
-    trailTarget.position.x = handVector.x;
-    trailTarget.position.y = handVector.y;
-    trailTarget.position.z = 150;
-    // trailTarget.position.z = 200;
+  trailTarget.position.set(handVector.x, handVector.y, 150);
 
-    let handGeometry = hand.mesh.geometry;
-    var originPoint = hand.mesh.position.clone();
+  let handGeometry = hand.mesh.geometry;
+  var originPoint = hand.mesh.position.clone();
 
-    for (
-      var vertexIndex = 0;
-      vertexIndex < handGeometry.vertices.length;
-      vertexIndex++
-    ) {
-      var localVertex = handGeometry.vertices[vertexIndex].clone();
-      var globalVertex = localVertex.applyMatrix4(hand.mesh.matrix);
-      var directionVector = globalVertex.sub(hand.mesh.position);
+  for (
+    var vertexIndex = 0;
+    vertexIndex < handGeometry.vertices.length;
+    vertexIndex++
+  ) {
+    var localVertex = handGeometry.vertices[vertexIndex].clone();
+    var globalVertex = localVertex.applyMatrix4(hand.mesh.matrix);
+    var directionVector = globalVertex.sub(hand.mesh.position);
 
-      var ray = new THREE.Raycaster(
-        originPoint,
-        directionVector.clone().normalize()
-      );
+    var ray = new THREE.Raycaster(
+      originPoint,
+      directionVector.clone().normalize()
+    );
 
-      var collisionResults = ray.intersectObjects(fruitsObjects);
+    var collisionResults = ray.intersectObjects(fruitsObjects);
 
-      if (collisionResults.length > 0) {
-        // if (collisionResults[0].distance < 500) {
-        if (collisionResults[0].distance < 300) {
-          // if (collisionResults[0].distance < 800) {
-          if (collisionResults[0].object.hit === false) {
-            collisionResults[0].object.hit = true;
-            collisionResults[0].object.name === "bomb" && endGame();
-            scene.remove(collisionResults[0].object);
-            fruitsObjects.splice(collisionResults[0].object.index, 1);
-            !gameOver && generateFruits(1);
-            return true;
-          }
+    if (collisionResults.length > 0) {
+      if (collisionResults[0].distance < 200) {
+        if (collisionResults[0].object.hit === false) {
+          collisionResults[0].object.hit = true;
+          collisionResults[0].object.name === "bomb" && endGame();
+          scene.remove(collisionResults[0].object);
+          fruitsObjects.splice(collisionResults[0].object.index, 1);
+          !gameOver && generateFruits(1);
+          return true;
         }
       }
     }
-    return false;
-  });
+  }
+  return false;
 };
 
 export const losePoint = () => {
@@ -103,24 +101,14 @@ export const losePoint = () => {
 };
 
 const endGame = () => {
-  gameOver = true;
-  hitScore = 0;
-  score = 0;
   document.getElementsByClassName("game-over")[0].style.display = "flex";
   cancelAnimationFrame(frameLoop);
-  // remove all objects from scene.
-  fruitsObjects.map((object) => {
-    scene.remove(object);
-    fruitsObjects = [];
-  });
 };
 
 const resetCamera = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  // camera.position.set(0, 200, 400);
   camera.position.set(0, 0, cameraZPosition);
-
   camera.lookAt(scene.position);
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
@@ -178,11 +166,11 @@ const initTrailTarget = () => {
     color: 0xffffff,
   });
   trailTarget = new THREE.Mesh(geometry, material);
-  trailTarget.position.set(0, 0, 0);
+  // -500 to place it offscreen at first
+  trailTarget.position.set(0, -500, 0);
   trailTarget.scale.multiplyScalar(1);
   trailTarget.receiveShadow = false;
-  // Removing to avoid seeing white dot on home screen
-  // scene.add(trailTarget);
+  scene.add(trailTarget);
 };
 
 const updateTrailColors = () => {
@@ -266,7 +254,6 @@ const setupCamera = async () => {
 const loadVideo = async () => {
   const video = await setupCamera();
   video.play();
-
   return video;
 };
 
@@ -302,11 +289,7 @@ export const loadPoseNet = async () => {
     multiplier: 0.75,
   });
 
-  try {
-    video = await loadVideo();
-  } catch (e) {
-    throw e;
-  }
+  video = await loadVideo();
 
   guiState.net = net;
 };
@@ -355,10 +338,13 @@ export const generateFruits = (numFruits) => {
         break;
     }
 
+    newFruit.index = fruitsObjects.length;
     newFruit.soundPlayed = false;
     newFruit.direction = "up";
     newFruit.hit = false;
-    newFruit.index = fruitsObjects.length;
+
+    const completeFruit = { ...newFruit, ...commonFruitProperties };
+    // console.log(completeFruit);
     fruitsObjects.push(newFruit);
 
     scene.add(newFruit);

@@ -1,6 +1,6 @@
 import {
   draw3DHand,
-  moveHands,
+  animateHandTrail,
   initRenderer,
   initLights,
   render,
@@ -18,7 +18,7 @@ import {
   isMobile,
   losePoint,
 } from "./utils.js";
-const hands = [];
+let hand;
 let handMesh;
 let scoreDivContent = document.getElementsByClassName("score-number")[0];
 let canvas = document.getElementById("output");
@@ -93,21 +93,21 @@ const detectPoseInRealTime = async (video) => {
           const leftWrist = keypoints.find((k) => k.part === "leftWrist");
           const rightWrist = keypoints.find((k) => k.part === "rightWrist");
 
-          if (hands.length === 0) {
+          if (!hand) {
             if (rightWrist || leftWrist) {
               handMesh = draw3DHand();
-              hands.push({
+              hand = {
                 mesh: handMesh,
                 coordinates: rightWrist
                   ? rightWrist.position
                   : leftWrist.position,
                 name: rightWrist ? "rightHand" : "leftHand",
-              });
+              };
               scene.add(handMesh);
             }
           } else {
-            hands[0].coordinates =
-              hands[0].name === "rightHand"
+            hand.coordinates =
+              hand.name === "rightHand"
                 ? rightWrist.position
                 : leftWrist.position;
           }
@@ -130,9 +130,8 @@ const animate = () => {
       fruit.rotation.x += 0.1;
       fruit.rotation.y += 0.1;
 
-      if (fruit.direction === "up") {
-        fruit.position.y += fruit.speed;
-      }
+      fruit.direction === "up" && (fruit.position.y += fruit.speed);
+
       if (
         fruit.position.y > fruit.thresholdBottomY &&
         !fruit.soundPlayed &&
@@ -142,12 +141,9 @@ const animate = () => {
         fruit.soundPlayed = true;
       }
 
-      if (fruit.position.y > fruit.thresholdTopY) {
-        fruit.direction = "down";
-      }
-      if (fruit.direction === "down") {
-        fruit.position.y -= fruit.speed;
-      }
+      fruit.position.y > fruit.thresholdTopY && (fruit.direction = "down");
+
+      fruit.direction === "down" && (fruit.position.y -= fruit.speed);
 
       if (
         fruit.position.y < fruit.thresholdBottomY &&
@@ -161,10 +157,10 @@ const animate = () => {
     });
   }
 
-  if (hands.length) {
-    let hasCollided = moveHands(hands, camera, fruitsObjects);
-    //shouldn't be an array.
-    if (hasCollided.includes(true)) {
+  if (hand) {
+    let hasCollided = animateHandTrail(hand, camera, fruitsObjects);
+
+    if (hasCollided) {
       score += 1;
       scoreDivContent.innerHTML = score;
       fruitSliced.play();
@@ -179,7 +175,6 @@ window.addEventListener("resize", onWindowResize, false);
 document.getElementsByTagName("button")[0].onclick = () => {
   document.getElementsByClassName("intro")[0].style.display = "none";
   document.getElementsByClassName("score")[0].style.display = "block";
-  scene.add(trailTarget);
   animate();
 };
 
