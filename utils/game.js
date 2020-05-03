@@ -5,6 +5,7 @@ let hitScore = 0;
 export var newFruitSound;
 export var fruitSliced;
 export var bombSlicedSound;
+export var backgroundNoise;
 
 export const losePoint = () => {
   hitScore += 1;
@@ -38,4 +39,8 @@ export const initSounds = () => {
   newFruitSound = new Howl({ src: ["../assets/fruit.m4a"] });
   fruitSliced = new Howl({ src: ["../assets/splash.m4a"] });
   bombSlicedSound = new Howl({ src: ["../assets/bomb-sound.m4a"] });
+  backgroundNoise = new Howl({
+    src: ["../assets/background-noise.m4a"],
+    loop: true,
+  });
 };

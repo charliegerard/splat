@@ -15,6 +15,7 @@ import {
   animate,
   camera,
 } from "./utils/index.js";
+import { backgroundNoise } from "./utils/game.js";
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -58,5 +59,6 @@ window.addEventListener(
 document.getElementsByTagName("button")[0].onclick = () => {
   document.getElementsByClassName("intro")[0].style.display = "none";
   document.getElementsByClassName("score")[0].style.display = "block";
+  backgroundNoise.play();
   animate();
 };
