@@ -33,6 +33,7 @@ var trailTarget,
 
 export var frameLoop;
 export var scene;
+export var camera;
 
 export const initScene = () => {
   scene = new THREE.Scene();

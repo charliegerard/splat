@@ -13,6 +13,7 @@ import {
   initSceneGeometry,
   initTrailRenderers,
   animate,
+  camera,
 } from "./utils/index.js";
 
 canvas.width = window.innerWidth;

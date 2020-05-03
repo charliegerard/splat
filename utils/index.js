@@ -30,4 +30,5 @@ export {
   initTrailRenderers,
   draw3DHand,
   animate,
+  camera,
 } from "./scene.js";
