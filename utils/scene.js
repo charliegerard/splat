@@ -357,24 +357,24 @@ const animateHandTrail = (hand, camera, fruitsObjects) => {
 
   trailTarget.position.set(handVector.x, handVector.y, 150);
 
-  let handGeometry = hand.mesh.geometry;
-  var originPoint = hand.mesh.position.clone();
+  const handGeometry = hand.mesh.geometry;
+  const originPoint = hand.mesh.position.clone();
 
   for (
     var vertexIndex = 0;
     vertexIndex < handGeometry.vertices.length;
     vertexIndex++
   ) {
-    var localVertex = handGeometry.vertices[vertexIndex].clone();
-    var globalVertex = localVertex.applyMatrix4(hand.mesh.matrix);
-    var directionVector = globalVertex.sub(hand.mesh.position);
+    const localVertex = handGeometry.vertices[vertexIndex].clone();
+    const globalVertex = localVertex.applyMatrix4(hand.mesh.matrix);
+    const directionVector = globalVertex.sub(hand.mesh.position);
 
-    var ray = new THREE.Raycaster(
+    const ray = new THREE.Raycaster(
       originPoint,
       directionVector.clone().normalize()
     );
 
-    var collisionResults = ray.intersectObjects(fruitsObjects);
+    const collisionResults = ray.intersectObjects(fruitsObjects);
 
     if (collisionResults.length > 0) {
       if (collisionResults[0].distance < 200) {

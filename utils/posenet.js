@@ -22,7 +22,7 @@ export const loadPoseNet = async () => {
   video = await loadVideo();
 
   guiState.net = net;
-  video && detectPoseInRealTime(video);
+  detectPoseInRealTime(video);
 };
 
 export const guiState = {
@@ -83,24 +83,18 @@ const detectPoseInRealTime = async (video) => {
   async function poseDetectionFrame() {
     const imageScaleFactor = guiState.input.imageScaleFactor;
     const outputStride = +guiState.input.outputStride;
+    const poses = [];
 
-    let poses = [];
-    let minPoseConfidence;
-    let minPartConfidence;
-    switch (guiState.algorithm) {
-      case "single-pose":
-        const pose = await guiState.net.estimateSinglePose(
-          video,
-          imageScaleFactor,
-          flipHorizontal,
-          outputStride
-        );
-        poses.push(pose);
+    const pose = await guiState.net.estimateSinglePose(
+      video,
+      imageScaleFactor,
+      flipHorizontal,
+      outputStride
+    );
+    poses.push(pose);
 
-        minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
-        minPartConfidence = +guiState.singlePoseDetection.minPartConfidence;
-        break;
-    }
+    const minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
+
     poses.forEach(({ score, keypoints }) => {
       if (score >= minPoseConfidence) {
         if (guiState.output.showPoints) {

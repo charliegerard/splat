@@ -38,6 +38,13 @@ window.onload = async () => {
   });
 };
 
+document.getElementsByTagName("button")[0].onclick = () => {
+  document.getElementsByClassName("intro")[0].style.display = "none";
+  document.getElementsByClassName("score")[0].style.display = "block";
+  backgroundNoise.play();
+  animate();
+};
+
 const displayMobileScreen = () => {
   const introSection = document.getElementsByClassName("intro")[0];
   introSection.style.display = "none";
@@ -55,13 +62,6 @@ window.addEventListener(
   },
   false
 );
-
-document.getElementsByTagName("button")[0].onclick = () => {
-  document.getElementsByClassName("intro")[0].style.display = "none";
-  document.getElementsByClassName("score")[0].style.display = "block";
-  backgroundNoise.play();
-  animate();
-};
 
 console.log(
   "%c%s",
